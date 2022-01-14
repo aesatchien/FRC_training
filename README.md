@@ -1,8 +1,6 @@
 # FRC_training
 Notebooks and how-tos for python and robotpy
-
-Clone the git and install on your own machine:
-Use "git clone https://github.com/aesatchien/FRC_training.git" from the git bash (or any git aware) shell to download.  If you don't have git and you just want to look at the code, you can download the repository from the links on the right as a zip file.  Everything is meant to be run in Jupyter (links below for installing) with the robotpy libraries installed.
+Everything is meant to be run in Jupyter (links below for installing) with the robotpy libraries installed.  **HOWEVER**, since git is jupyter-aware, you can just browse the notebooks in the directories here for quick checks.
 
 ### Contents
 * notebooks - Jupyter notebooks 
@@ -18,6 +16,8 @@ Use "git clone https://github.com/aesatchien/FRC_training.git" from the git bash
     *  robot_examples - more hints on commands V1 and V2 frameworks for the robot/subsystem/command approach to programming an FRC bot    
 * data_files - TBD
 
+Clone the git and install on your own machine:
+Use "git clone https://github.com/aesatchien/FRC_training.git" from the git bash (or any git aware) shell to download.  If you don't have git and you just want to look at the code, you can download the repository from the links on the right as a zip file.
 
 ### Additional resources  
 Instructions for setting up a computer with python/Jupyter/robotpy are here:
