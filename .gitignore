@@ -1,5 +1,8 @@
 # CJH pycharm gitignore
 
+# cad nc files
+*.nc
+
 # notepad++ .bak files
 *.bak
 
