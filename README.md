@@ -7,9 +7,6 @@ Everything is meant to be run in Jupyter (links below for installing) with the r
   * python_tutorials
     * python_intro_basics.ipynb - a super-quick intro to python using Jupyter (requires Jupyter)
     * advanced_concepts.ipynb  - so far: lambdas, args, kwargs
-  * cad - several tools for generating cam for machining
-    * bearing_shift.ipynb - tell it the XY center of the bearing you want and it writes a file for the benchmill
-    * center_drill20.ipynb - give it a list of points and it will center drill them on shapeoko or spot/peck on benchmill  
   * homeworks
     * hints on assignments (currently has hints on autonomous movement commands)
   * controls
