@@ -74,7 +74,7 @@ def generate_gcode(point_list, machine='shapeoko', overrides=None, peck=False, s
         for ix, point in enumerate(sorted_list):
             # move to x,y, drill, retract
             message = message + f'; ## POINT #{ix}:\n'
-            message = message + f'G00 X{point[0]} Y{point[1]} F{settings_dict[machine]["LINEAR_FEED"]}\n'
+            message = message + f'G01 X{point[0]} Y{point[1]} F{settings_dict[machine]["LINEAR_FEED"]}\n'
             message = message + f'G01 Z{settings_dict[machine]["ENGAGE_HEIGHT"]} F{settings_dict[machine]["RETRACT_FEED"]}\n'
             message = message + f'Z{settings_dict[machine]["DRILL_DEPTH"]} F{settings_dict[machine]["DRILL_FEED"]}\n'
             message = message + f"Z{settings_dict[machine]['RETRACT_HEIGHT']} F{settings_dict[machine]['RETRACT_FEED']}\n"
@@ -98,7 +98,7 @@ def generate_gcode(point_list, machine='shapeoko', overrides=None, peck=False, s
             message = message + f'N0034 G82 G98 R{settings_dict[machine]["ENGAGE_HEIGHT"]} Z{settings_dict[machine]["DRILL_DEPTH"]} P01 F{settings_dict[machine]["DRILL_FEED"]}\n'
         for ix, point in enumerate(sorted_list[1:]):
             message = message + f'X{point[0]} Y{point[1]}\n'
-        message = message + f'; ## END CANNED CYCLE\nN0036 G80 Z{settings_dict[machine]["RETRACT_HEIGHT"]}\n'
+        message = message + f'N0036 G80 Z{settings_dict[machine]["RETRACT_HEIGHT"]}\n; ## END CANNED CYCLE\n'
         command = message + outro_code
 
     else:
@@ -140,7 +140,7 @@ def generate_l_square(width, height, machine='shapeoko', overrides=None, save_fi
         # start at the outside - far side in x
         message = intro_code +  f'\n; ## START L-CUT CYCLE\n'
         for ix, cut_depth in enumerate(cut_depths):
-            message = message + f'G00 X{width+pad} Y{0-radius} F{settings_dict[machine]["LINEAR_FEED"]}\n'  # move to right, quickly
+            message = message + f'G01 X{width+pad} Y{0-radius} F{settings_dict[machine]["LINEAR_FEED"]}\n'  # move to right, quickly
             message = message + f'G01 Z{cut_depth:.3f} F{settings_dict[machine]["DRILL_FEED"]}\n'  # lower tool
             message = message + f'G01 X{0} Y{0 - radius} F{settings_dict[machine]["CUT_FEED"]}\n'  # cut to past center
             message = message + f'G01 X{0 + radius} Y{0 - radius} F{settings_dict[machine]["CUT_FEED"]}\n'  # back to center
