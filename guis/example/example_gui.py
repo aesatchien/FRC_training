@@ -42,6 +42,9 @@ class Ui(QtWidgets.QMainWindow):
         self.qaction_show_hide.triggered.connect(self.toggle_network_tables)  # show/hide networktables
         self.qaction_refresh.triggered.connect(self.refresh_tree)
 
+        #QtWidgets.QLabel.image
+        #self.qlabel_hub_image.
+
         self.qt_tree_widget_nt.hide()
 
         # at the end of init, you need to show yourself
@@ -82,9 +85,8 @@ class Ui(QtWidgets.QMainWindow):
                 d.update({'entry': None})
             print(key, d)
 
-
-
     def update_widgets(self):
+        """ Main function which is looped to update the GUI with NT values"""
         for key, d in self.widget_dict.items():
             if d['entry'] is not None:
                 if 'indicator' in key:
@@ -98,11 +100,16 @@ class Ui(QtWidgets.QMainWindow):
                     value = int(d['entry'].getDouble(0))
                     d['widget'].display(str(value))
                 else:
-                    print(f'Skipping: {key}')
+                    pass
+                    # print(f'Skipping: {key}')
+
+        x0, y0 = self.qlabel_ball.x(),  self.qlabel_ball.y()
+        self.qlabel_ball.move((x0 + 5) % 500, (y0 + 5) % 380)
 
     def toggle_network_tables(self):
         # tree = QtWidgets.QTreeWidget
         if self.qt_tree_widget_nt.isHidden():
+            self.refresh_tree()
             self.qt_tree_widget_nt.show()
         else:
             self.qt_tree_widget_nt.hide()
@@ -200,9 +207,6 @@ if __name__ == "__main__":
         print(f"We're not on a scaled screen: logical dpi is {dpi_logical}")
 
     ui = Ui()
-
-
-
 
     try:
         sys.exit(app.exec_())

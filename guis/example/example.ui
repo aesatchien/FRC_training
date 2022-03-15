@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1118</width>
-    <height>613</height>
+    <width>1624</width>
+    <height>606</height>
    </rect>
   </property>
   <property name="font">
@@ -63,18 +63,21 @@
     <property name="verticalScrollBarPolicy">
      <enum>Qt::ScrollBarAlwaysOn</enum>
     </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QPushButton" name="qt_button_refresh_nt">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>490</y>
-      <width>181</width>
+      <x>110</x>
+      <y>500</y>
+      <width>111</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>refresh network tables</string>
+     <string>test button</string>
     </property>
    </widget>
    <widget class="QLabel" name="qlabel_camera_view">
@@ -135,8 +138,8 @@
        </property>
        <property name="font">
         <font>
-         <family>Comic Sans MS</family>
-         <pointsize>12</pointsize>
+         <family>Arial Narrow</family>
+         <pointsize>16</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -148,7 +151,7 @@ background-color:rgb(80, 235, 0);
 color:rgb(0, 0, 0);</string>
        </property>
        <property name="text">
-        <string>Compressor On</string>
+        <string>COMPRESSOR ON</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -181,9 +184,10 @@ color:rgb(0, 0, 0);</string>
        </property>
        <property name="font">
         <font>
-         <family>Comic Sans MS</family>
-         <pointsize>14</pointsize>
+         <family>Arial Narrow</family>
+         <pointsize>18</pointsize>
          <weight>75</weight>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
        </property>
@@ -193,7 +197,7 @@ border-radius: 7px;
 background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="text">
-        <string>Intake On</string>
+        <string>INTAKE ON</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -213,8 +217,8 @@ background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="font">
         <font>
-         <family>Comic Sans MS</family>
-         <pointsize>10</pointsize>
+         <family>Arial Narrow</family>
+         <pointsize>14</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -246,7 +250,7 @@ background-color:rgb(80, 235, 0);</string>
        <property name="font">
         <font>
          <family>Comic Sans MS</family>
-         <pointsize>10</pointsize>
+         <pointsize>12</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -297,6 +301,7 @@ background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="font">
         <font>
+         <family>MS Shell Dlg 2</family>
          <pointsize>14</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -308,8 +313,8 @@ border-radius: 7px;
 background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="text">
-        <string>Shooter 
- At Speed</string>
+        <string>SHOOTER 
+ AT SPEED</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -355,6 +360,7 @@ background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="font">
         <font>
+         <family>MS Shell Dlg 2</family>
          <pointsize>12</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -393,7 +399,7 @@ background-color:rgb(80, 235, 0);</string>
       <property name="geometry">
        <rect>
         <x>570</x>
-        <y>10</y>
+        <y>0</y>
         <width>181</width>
         <height>301</height>
        </rect>
@@ -528,19 +534,124 @@ background-color:rgb(80, 235, 0);</string>
      </attribute>
     </widget>
    </widget>
+   <widget class="QTabWidget" name="tabWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>1110</x>
+      <y>10</y>
+      <width>511</width>
+      <height>481</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Hub</string>
+     </attribute>
+     <widget class="QLabel" name="qlabel_hub_image">
+      <property name="geometry">
+       <rect>
+        <x>12</x>
+        <y>40</y>
+        <width>480</width>
+        <height>384</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>png/hub_am-4671.png</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="qlabel_ball">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>130</y>
+        <width>71</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border: 10px;
+border-radius:35px;
+background-color:rgb(10, 10, 227);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::AutoText</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_4">
+     <attribute name="title">
+      <string>Field</string>
+     </attribute>
+     <widget class="QLabel" name="qlabel_field_image">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>480</width>
+        <height>384</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>png/field_small.PNG</pixmap>
+      </property>
+     </widget>
+    </widget>
+   </widget>
    <zorder>tabWidget</zorder>
    <zorder>qt_text_status</zorder>
    <zorder>qt_button_refresh_nt</zorder>
    <zorder>qlabel_camera_view</zorder>
    <zorder>qt_tree_widget_nt</zorder>
+   <zorder>tabWidget_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1118</width>
-     <height>26</height>
+     <width>1624</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
