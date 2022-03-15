@@ -31,7 +31,7 @@ class Ui(QtWidgets.QMainWindow):
         self.ntinst.startClient(servers=self.servers)
         self.connected = self.ntinst.isConnected()
 
-        self.refresh_time = 100  # milliseconds before refreshing
+        self.refresh_time = 50  # milliseconds before refreshing
         self.widget_dict = {}
         self.initialize_widgets()
         #QTimer.singleShot(2000, self.initialize_widgets())  # wait 2s for NT to initialize
@@ -66,10 +66,10 @@ class Ui(QtWidgets.QMainWindow):
         'qlabel_indexer_indicator': {'widget':self.qlabel_indexer_indicator, 'nt':'/SmartDashboard/indexer_state'},
         'qlabel_intake_indicator': {'widget': self.qlabel_intake_indicator, 'nt': '/SmartDashboard/intake_motor_state'},
         'qlabel_intake_piston_indicator': {'widget':self.qlabel_intake_piston_indicator, 'nt':'/SmartDashboard/intake_extended'},
-        'qlabel_long_arm_indicator': {'widget':self.qlabel_long_arm_indicator, 'nt':None},
+        'qlabel_long_arm_indicator': {'widget':self.qlabel_long_arm_indicator, 'nt':'/SmartDashboard/climber_long_arm'},
         'qlabel_shooter_indicator': {'widget':self.qlabel_shooter_indicator, 'nt':'/SmartDashboard/shooter_state'},
         'qlabel_shooter_speed_indicator': {'widget':self.qlabel_shooter_speed_indicator, 'nt':'/SmartDashboard/shooter_ready'},
-        'qlabel_short_arm_indicator': {'widget':self.qlabel_short_arm_indicator, 'nt':None},
+        'qlabel_short_arm_indicator': {'widget':self.qlabel_short_arm_indicator, 'nt':'/SmartDashboard/climber_short_arm'},
         'qlcd_climber_current': {'widget':self.qlcd_climber_current, 'nt':'/SmartDashboard/climber_current'},
         'qlcd_shooter_rpm': {'widget':self.qlcd_shooter_rpm, 'nt':'/SmartDashboard/shooter_rpm'}
         }
