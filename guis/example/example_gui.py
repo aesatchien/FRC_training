@@ -30,17 +30,23 @@ class Ui(QtWidgets.QMainWindow):
         self.servers = ["127.0.0.1", "10.24.29.2"] #  "roboRIO-2429-FRC.local"]  # need to add the USB one here
         self.ntinst.startClient(servers=self.servers)
         self.connected = self.ntinst.isConnected()
+        self.sorted_tree = []  # keep a global list of all the nt addresses
 
         self.refresh_time = 50  # milliseconds before refreshing
         self.widget_dict = {}
+        self.command_dict = {}
         self.initialize_widgets()
         #QTimer.singleShot(2000, self.initialize_widgets())  # wait 2s for NT to initialize
 
 
         # all of your setup code goes here - linking buttons to functions, etc (move to seperate funciton if too long)
-        self.qt_button_refresh_nt.clicked.connect(self.update_widgets)
+
         self.qaction_show_hide.triggered.connect(self.toggle_network_tables)  # show/hide networktables
         self.qaction_refresh.triggered.connect(self.refresh_tree)
+
+        #self.qlistwidget_commands.setStyleSheet("QListView::item:selected{background-color: rgb(255,255,255);color: rgb(0,0,0);}")
+        self.qlistwidget_commands.clicked.connect(self.command_list_clicked)
+        self.qt_button_test.clicked.connect(self.command_list_clicked)
 
         #QtWidgets.QLabel.image
         #self.qlabel_hub_image.
@@ -59,6 +65,9 @@ class Ui(QtWidgets.QMainWindow):
         # children.sort()
         # for child in children:
         #    print(child)
+
+    def test(self):
+        pass
 
     def initialize_widgets(self):
 
@@ -83,7 +92,7 @@ class Ui(QtWidgets.QMainWindow):
                 d.update({'entry':self.ntinst.getEntry(d['nt'])})
             else:
                 d.update({'entry': None})
-            print(key, d)
+            # print(key, d)
 
     def update_widgets(self):
         """ Main function which is looped to update the GUI with NT values"""
@@ -103,8 +112,22 @@ class Ui(QtWidgets.QMainWindow):
                     pass
                     # print(f'Skipping: {key}')
 
+        green = QtGui.QColor(227, 255, 227)
+        white = QtGui.QColor(255, 255, 255)
+        for ix, (key, d) in enumerate(self.command_dict.items()):
+            bg_color = green if d['entry'].getBoolean(True) else white
+            self.qlistwidget_commands.item(ix).setBackground(bg_color)
+
+
         x0, y0 = self.qlabel_ball.x(),  self.qlabel_ball.y()
         self.qlabel_ball.move((x0 + 5) % 500, (y0 + 5) % 380)
+
+    def command_list_clicked(self, item):
+        # shortcut where we click the command list, fire off (or end) the command
+        cell_content = item.data()
+        toggled_state = not self.command_dict[cell_content]['entry'].getBoolean(True)
+        print(f'You clicked {cell_content} which is currently {not toggled_state}.  Firing command...')
+        self.command_dict[cell_content]['entry'].setBoolean(toggled_state)
 
     def toggle_network_tables(self):
         # tree = QtWidgets.QTreeWidget
@@ -124,11 +147,12 @@ class Ui(QtWidgets.QMainWindow):
             self.report_nt_status()
             self.qt_tree_widget_nt.clear()
             entries = self.ntinst.getEntries('/', types=0)
-            sorted_tree = sorted([e.getName() for e in entries])
+            self.sorted_tree = sorted([e.getName() for e in entries])
+
 
             # generate the dictionary - some magic I found on the internet
             nt_dict = {}
-            levels = [s[1:].split('/') for s in sorted_tree]
+            levels = [s[1:].split('/') for s in self.sorted_tree]
             for path in levels:
                 current_level = nt_dict
                 for part in path:
@@ -137,7 +161,15 @@ class Ui(QtWidgets.QMainWindow):
                     current_level = current_level[part]
 
             ages = []
-            for item in sorted_tree:
+
+            self.qlistwidget_commands.clear()
+            for item in self.sorted_tree:
+                if 'running' in item:  # quick test of the list view for commands
+                    # print(f'Command found: {item}')
+                    command_name = item.split('/')[2]
+                    self.qlistwidget_commands.addItem(command_name)
+                    self.command_dict.update({command_name: {'nt':item, 'entry': self.ntinst.getEntry(item)}})
+
                 entry_value = self.ntinst.getEntry(item).getValue()
                 value = entry_value.value()
                 age = int(time.time() - entry_value.last_change()/1E6)
