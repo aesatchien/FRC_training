@@ -3,6 +3,7 @@
 
 # print(f'Loading Modules ...', flush=True)
 import time
+from math import sin
 from datetime import datetime
 from pathlib import Path
 import numpy as np
@@ -83,7 +84,10 @@ class Ui(QtWidgets.QMainWindow):
         'qlabel_shooter_speed_indicator': {'widget':self.qlabel_shooter_speed_indicator, 'nt':'/SmartDashboard/shooter_ready'},
         'qlabel_short_arm_indicator': {'widget':self.qlabel_short_arm_indicator, 'nt':'/SmartDashboard/climber_short_arm'},
         'qlcd_climber_current': {'widget':self.qlcd_climber_current, 'nt':'/SmartDashboard/climber_current'},
-        'qlcd_shooter_rpm': {'widget':self.qlcd_shooter_rpm, 'nt':'/SmartDashboard/shooter_rpm'}
+        'qlcd_shooter_rpm': {'widget':self.qlcd_shooter_rpm, 'nt':'/SmartDashboard/shooter_rpm'},
+        'hub_targets': {'widget': None, 'nt': '/BallCam//green/targets'},
+        'hub_rotation': {'widget': None, 'nt': '/BallCam//green/rotation'},
+        'hub_distance': {'widget': None, 'nt': '/BallCam//green/distance'},
         }
 
         # get all the entries
@@ -92,7 +96,7 @@ class Ui(QtWidgets.QMainWindow):
                 d.update({'entry':self.ntinst.getEntry(d['nt'])})
             else:
                 d.update({'entry': None})
-            # print(key, d)
+            print(key, d)
 
     def update_widgets(self):
         """ Main function which is looped to update the GUI with NT values"""
@@ -118,9 +122,26 @@ class Ui(QtWidgets.QMainWindow):
             bg_color = green if d['entry'].getBoolean(True) else white
             self.qlistwidget_commands.item(ix).setBackground(bg_color)
 
+        hub_targets = self.widget_dict['hub_targets']['entry'].getDouble(0)
+        hub_rotation = self.widget_dict['hub_rotation']['entry'].getDouble(0) - 5
+        hub_distance = self.widget_dict['hub_distance']['entry'].getDouble(0)
+        print(f'hub_targets: {hub_targets} {hub_rotation:2.2f} {hub_distance:2.2f}', end='\r')
 
-        x0, y0 = self.qlabel_ball.x(),  self.qlabel_ball.y()
-        self.qlabel_ball.move((x0 + 5) % 500, (y0 + 5) % 380)
+        if hub_targets > 0:
+            # shooter_rpm = self.widget_dict['qlcd_shooter_rpm']['entry'].getDouble(0)
+            shooter_rpm = 2000
+
+            shooter_distance = shooter_rpm * 0.00075
+            center_offset = shooter_distance * -np.sin(hub_rotation * 3.14159 / 180)
+            x = 205 + center_offset * (380 / 1.2) # 380 px per 1.2 m
+            y = 190
+
+            self.qlabel_ball.move(x, y)
+        else:
+            self.qlabel_ball.move(100, 200)
+
+        # x0, y0 = self.qlabel_ball.x(),  self.qlabel_ball.y()
+        # self.qlabel_ball.move((x0 + 5) % 500, (y0 + 5) % 380)
 
     def command_list_clicked(self, item):
         # shortcut where we click the command list, fire off (or end) the command
@@ -164,6 +185,7 @@ class Ui(QtWidgets.QMainWindow):
 
             self.qlistwidget_commands.clear()
             for item in self.sorted_tree:
+                print(item)
                 if 'running' in item:  # quick test of the list view for commands
                     # print(f'Command found: {item}')
                     command_name = item.split('/')[2]
