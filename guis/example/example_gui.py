@@ -68,26 +68,30 @@ class Ui(QtWidgets.QMainWindow):
         #    print(child)
 
     def test(self):
-        pass
+        print('Test was called')
+
+    def label_click(self, label):
+        print(self.command_dict[label]['command'])
 
     def initialize_widgets(self):
 
         self.widget_dict = {
-        'qlabel_camera_view': {'widget':self.qlabel_camera_view, 'nt':None},
-        'qlabel_climber_indicator':{'widget':self.qlabel_climber_indicator, 'nt':'/SmartDashboard/climber_state'},
-        'qlabel_compressor_indicator': {'widget':self.qlabel_compressor_indicator, 'nt':'/SmartDashboard/compressor_state'},
-        'qlabel_indexer_indicator': {'widget':self.qlabel_indexer_indicator, 'nt':'/SmartDashboard/indexer_state'},
-        'qlabel_intake_indicator': {'widget': self.qlabel_intake_indicator, 'nt': '/SmartDashboard/intake_motor_state'},
-        'qlabel_intake_piston_indicator': {'widget':self.qlabel_intake_piston_indicator, 'nt':'/SmartDashboard/intake_extended'},
-        'qlabel_long_arm_indicator': {'widget':self.qlabel_long_arm_indicator, 'nt':'/SmartDashboard/climber_long_arm'},
-        'qlabel_shooter_indicator': {'widget':self.qlabel_shooter_indicator, 'nt':'/SmartDashboard/shooter_state'},
-        'qlabel_shooter_speed_indicator': {'widget':self.qlabel_shooter_speed_indicator, 'nt':'/SmartDashboard/shooter_ready'},
-        'qlabel_short_arm_indicator': {'widget':self.qlabel_short_arm_indicator, 'nt':'/SmartDashboard/climber_short_arm'},
-        'qlcd_climber_current': {'widget':self.qlcd_climber_current, 'nt':'/SmartDashboard/climber_current'},
-        'qlcd_shooter_rpm': {'widget':self.qlcd_shooter_rpm, 'nt':'/SmartDashboard/shooter_rpm'},
-        'hub_targets': {'widget': None, 'nt': '/BallCam//green/targets'},
-        'hub_rotation': {'widget': None, 'nt': '/BallCam//green/rotation'},
-        'hub_distance': {'widget': None, 'nt': '/BallCam//green/distance'},
+        'qlabel_camera_view': {'widget':self.qlabel_camera_view, 'nt':None, 'command':None},
+        'qlabel_climber_indicator':{'widget':self.qlabel_climber_indicator, 'nt':'/SmartDashboard/climber_state', 'command': None},
+        'qlabel_compressor_indicator': {'widget':self.qlabel_compressor_indicator, 'nt':'/SmartDashboard/compressor_state', 'command': None},
+        'qlabel_compressor_enabled_indicator': {'widget': self.qlabel_compressor_enabled_indicator, 'nt': '/SmartDashboard/compressor_close_loop', 'command': 'toggle compressor'},
+        'qlabel_indexer_indicator': {'widget':self.qlabel_indexer_indicator, 'nt':'/SmartDashboard/indexer_state', 'command': None},
+        'qlabel_intake_indicator': {'widget': self.qlabel_intake_indicator, 'nt': '/SmartDashboard/intake_motor_state', 'command': None},
+        'qlabel_intake_piston_indicator': {'widget':self.qlabel_intake_piston_indicator, 'nt':'/SmartDashboard/intake_extended', 'command': None},
+        'qlabel_long_arm_indicator': {'widget':self.qlabel_long_arm_indicator, 'nt':'/SmartDashboard/climber_long_arm', 'command': None},
+        'qlabel_shooter_indicator': {'widget':self.qlabel_shooter_indicator, 'nt':'/SmartDashboard/shooter_state', 'command': None},
+        'qlabel_shooter_speed_indicator': {'widget':self.qlabel_shooter_speed_indicator, 'nt':'/SmartDashboard/shooter_ready', 'command': None},
+        'qlabel_short_arm_indicator': {'widget':self.qlabel_short_arm_indicator, 'nt':'/SmartDashboard/climber_short_arm', 'command': None},
+        'qlcd_climber_current': {'widget':self.qlcd_climber_current, 'nt':'/SmartDashboard/climber_current', 'command': None},
+        'qlcd_shooter_rpm': {'widget':self.qlcd_shooter_rpm, 'nt':'/SmartDashboard/shooter_rpm', 'command': None},
+        'hub_targets': {'widget': None, 'nt': '/BallCam//green/targets', 'command': None},
+        'hub_rotation': {'widget': None, 'nt': '/BallCam//green/rotation', 'command': None},
+        'hub_distance': {'widget': None, 'nt': '/BallCam//green/distance', 'command': None},
         }
 
         # get all the entries

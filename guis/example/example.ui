@@ -160,6 +160,38 @@ color:rgb(0, 0, 0);</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
+      <widget class="QLabel" name="qlabel_compressor_enabled_indicator">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>161</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">border: 7px;
+border-radius: 7px;
+background-color:rgb(80, 235, 0);</string>
+       </property>
+       <property name="text">
+        <string>Compressor Enabled</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox">
       <property name="geometry">
@@ -550,7 +582,7 @@ background-color:rgb(80, 235, 0);</string>
        <rect>
         <x>10</x>
         <y>30</y>
-        <width>201</width>
+        <width>161</width>
         <height>401</height>
        </rect>
       </property>
