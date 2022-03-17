@@ -14,8 +14,8 @@ from PyQt5.QtCore import Qt, QTimer  # QObject, QThread, pyqtSignal
 
 import networktables
 
-print(f'Initializing GUI ...', flush=True)
-# trick to inherit all the UI elements from the design file  - DO NOT CODE THE LAYOUT!
+#print(f'Initializing GUI ...', flush=True)
+
 class Ui(QtWidgets.QMainWindow):
     # set the root dir for the project, knowing we're one deep
     root_dir = Path('.').absolute()  # set this to be in the root, not a child, so no .parent. May need to change this.
@@ -24,6 +24,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def __init__(self):
         super(Ui, self).__init__()
+        # trick to inherit all the UI elements from the design file  - DO NOT CODE THE LAYOUT!
         uic.loadUi('example.ui', self)  # if this isn't in the directory, you got no program
 
         # set up network tables
@@ -32,6 +33,7 @@ class Ui(QtWidgets.QMainWindow):
         self.ntinst.startClient(servers=self.servers)
         self.connected = self.ntinst.isConnected()
         self.sorted_tree = []  # keep a global list of all the nt addresses
+        self.autonomous_list = []  # set up an autonomous list
 
         self.refresh_time = 50  # milliseconds before refreshing
         self.widget_dict = {}
@@ -47,7 +49,9 @@ class Ui(QtWidgets.QMainWindow):
 
         #self.qlistwidget_commands.setStyleSheet("QListView::item:selected{background-color: rgb(255,255,255);color: rgb(0,0,0);}")
         self.qlistwidget_commands.clicked.connect(self.command_list_clicked)
-        self.qt_button_test.clicked.connect(self.command_list_clicked)
+        self.qcombobox_autonomous_routines.currentTextChanged.connect(self.update_routines)
+
+        self.qt_button_test.clicked.connect(self.test)
 
         #QtWidgets.QLabel.image
         #self.qlabel_hub_image.
@@ -70,12 +74,23 @@ class Ui(QtWidgets.QMainWindow):
     def test(self):
         print('Test was called')
 
+    # update the autonomous routines - should make this general for any chooser
+    def update_routines(self, text):
+        key = self.widget_dict['qcombobox_autonomous_routines']['selected']
+        self.ntinst.getEntry(key).setString(text)
+        self.ntinst.flush()
+        # print(f'Set NT value to {text}', flush=True)
+
+    # eventually we may want to tie commands to clicking labels
     def label_click(self, label):
         print(self.command_dict[label]['command'])
 
+    # set up appropriate entries for all the widgets we care about
     def initialize_widgets(self):
 
         self.widget_dict = {
+        'qcombobox_autonomous_routines': {'widget':self.qcombobox_autonomous_routines, 'nt':r'/SmartDashboard/autonomous routines/options', 'command':None,
+                                          'selected': r'/SmartDashboard/autonomous routines/selected'},
         'qlabel_camera_view': {'widget':self.qlabel_camera_view, 'nt':None, 'command':None},
         'qlabel_climber_indicator':{'widget':self.qlabel_climber_indicator, 'nt':'/SmartDashboard/climber_state', 'command': None},
         'qlabel_compressor_indicator': {'widget':self.qlabel_compressor_indicator, 'nt':'/SmartDashboard/compressor_state', 'command': None},
@@ -85,10 +100,12 @@ class Ui(QtWidgets.QMainWindow):
         'qlabel_intake_indicator': {'widget': self.qlabel_intake_indicator, 'nt': '/SmartDashboard/intake_motor_state', 'command': None},
         'qlabel_intake_piston_indicator': {'widget':self.qlabel_intake_piston_indicator, 'nt':'/SmartDashboard/intake_extended', 'command': None},
         'qlabel_long_arm_indicator': {'widget':self.qlabel_long_arm_indicator, 'nt':'/SmartDashboard/climber_long_arm', 'command': None},
+        'qlabel_nt_connected': {'widget': self.qlabel_nt_connected, 'nt': None, 'command': None},
         'qlabel_shooter_indicator': {'widget':self.qlabel_shooter_indicator, 'nt':'/SmartDashboard/shooter_state', 'command': None},
         'qlabel_shooter_speed_indicator': {'widget':self.qlabel_shooter_speed_indicator, 'nt':'/SmartDashboard/shooter_ready', 'command': None},
         'qlabel_short_arm_indicator': {'widget':self.qlabel_short_arm_indicator, 'nt':'/SmartDashboard/climber_short_arm', 'command': None},
         'qlcd_climber_current': {'widget':self.qlcd_climber_current, 'nt':'/SmartDashboard/climber_current', 'command': None},
+        'qlcd_climber_position': {'widget': self.qlcd_climber_current, 'nt': '/SmartDashboard/climber_position', 'command': None},
         'qlcd_shooter_rpm': {'widget':self.qlcd_shooter_rpm, 'nt':'/SmartDashboard/shooter_rpm', 'command': None},
         'hub_targets': {'widget': None, 'nt': '/BallCam//green/targets', 'command': None},
         'hub_rotation': {'widget': None, 'nt': '/BallCam//green/rotation', 'command': None},
@@ -105,28 +122,49 @@ class Ui(QtWidgets.QMainWindow):
 
     def update_widgets(self):
         """ Main function which is looped to update the GUI with NT values"""
+        style_on = "border: 7px; border-radius: 7px; background-color:rgb(80, 235, 0); color:rgb(0, 0, 0);"
+        style_off = "border: 7px; border-radius: 7px; background-color:rgb(220, 0, 0); color:rgb(200, 200, 200);"
+
+        # update the connection indicator
+        style = style_on if self.ntinst.isConnected() else style_off
+        self.widget_dict['qlabel_nt_connected']['widget'].setStyleSheet(style)
+
+        # update all labels tied to NT entries
         for key, d in self.widget_dict.items():
             if d['entry'] is not None:
                 if 'indicator' in key:
                     #  print(f'Indicator: {key}')
-                    style_on = "border: 7px; border-radius: 7px; background-color:rgb(80, 235, 0); color:rgb(0, 0, 0);"
-                    style_off = "border: 7px; border-radius: 7px; background-color:rgb(220, 0, 0); color:rgb(200, 200, 200);"
                     style = style_on if d['entry'].getBoolean(False) else style_off
                     d['widget'].setStyleSheet(style)
                 elif 'lcd' in key:
                     #  print(f'LCD: {key}')
                     value = int(d['entry'].getDouble(0))
                     d['widget'].display(str(value))
+                elif 'combo' in key:  # need a simpler way to update the combo boxes
+                    new_list = d['entry'].getStringArray([])
+                    if new_list != self.autonomous_list:
+                        d['widget'].blockSignals(True)  # don't call updates on this one
+                        d['widget'].clear()
+                        d['widget'].addItems(new_list)
+                        d['widget'].blockSignals(False)
+                        self.autonomous_list = new_list
+                    selected_routine = self.ntinst.getEntry(d['selected']).getString('')
+                    if selected_routine != d['widget'].currentText():
+                        d['widget'].blockSignals(True)  # don't call updates on this one
+                        d['widget'].setCurrentText(selected_routine)
+                        d['widget'].blockSignals(False)
                 else:
                     pass
                     # print(f'Skipping: {key}')
 
+        # update the commands list
         green = QtGui.QColor(227, 255, 227)
         white = QtGui.QColor(255, 255, 255)
         for ix, (key, d) in enumerate(self.command_dict.items()):
             bg_color = green if d['entry'].getBoolean(True) else white
             self.qlistwidget_commands.item(ix).setBackground(bg_color)
 
+        # update the ball position on the hub target image
         hub_targets = self.widget_dict['hub_targets']['entry'].getDouble(0)
         hub_rotation = self.widget_dict['hub_rotation']['entry'].getDouble(0) - 5
         hub_distance = self.widget_dict['hub_distance']['entry'].getDouble(0)

@@ -54,8 +54,8 @@
    <widget class="QPlainTextEdit" name="qt_text_status">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>530</y>
+      <x>240</x>
+      <y>500</y>
       <width>921</width>
       <height>51</height>
      </rect>
@@ -70,7 +70,7 @@
    <widget class="QPushButton" name="qt_button_test">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>1170</x>
       <y>500</y>
       <width>111</width>
       <height>23</height>
@@ -274,7 +274,7 @@ background-color:rgb(80, 235, 0);</string>
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>100</y>
+         <y>90</y>
          <width>161</width>
          <height>31</height>
         </rect>
@@ -306,7 +306,7 @@ background-color:rgb(80, 235, 0);</string>
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>140</y>
+         <y>124</y>
          <width>161</width>
          <height>31</height>
         </rect>
@@ -391,7 +391,7 @@ background-color:rgb(80, 235, 0);</string>
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>150</y>
+         <y>180</y>
          <width>151</width>
          <height>41</height>
         </rect>
@@ -419,7 +419,7 @@ background-color:rgb(80, 235, 0);</string>
          <x>10</x>
          <y>90</y>
          <width>161</width>
-         <height>31</height>
+         <height>63</height>
         </rect>
        </property>
        <property name="font">
@@ -449,7 +449,7 @@ background-color:rgb(80, 235, 0);</string>
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>132</y>
+         <y>160</y>
          <width>131</width>
          <height>16</height>
         </rect>
@@ -590,6 +590,69 @@ background-color:rgb(80, 235, 0);</string>
         <string>Climber Current</string>
        </property>
       </widget>
+      <widget class="QLCDNumber" name="qlcd_climber_position">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>160</y>
+         <width>151</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="digitCount">
+        <number>4</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_4">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>140</y>
+         <width>131</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Climber Position</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QComboBox" name="qcombobox_autonomous_routines">
+      <property name="geometry">
+       <rect>
+        <x>270</x>
+        <y>330</y>
+        <width>191</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>310</y>
+        <width>181</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Autonomous Routine</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
@@ -725,12 +788,45 @@ background-color:rgb(10, 10, 227);</string>
      </widget>
     </widget>
    </widget>
+   <widget class="QLabel" name="qlabel_nt_connected">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>0</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>8</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 7px;
+border-radius: 7px;
+background-color:rgb(80, 235, 0);</string>
+    </property>
+    <property name="text">
+     <string>NT Connected</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::AutoText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <zorder>tabWidget</zorder>
    <zorder>qt_text_status</zorder>
    <zorder>qt_button_test</zorder>
    <zorder>qlabel_camera_view</zorder>
    <zorder>qt_tree_widget_nt</zorder>
    <zorder>tabWidget_2</zorder>
+   <zorder>qlabel_nt_connected</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -738,7 +834,7 @@ background-color:rgb(10, 10, 227);</string>
      <x>0</x>
      <y>0</y>
      <width>1624</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
