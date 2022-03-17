@@ -80,6 +80,7 @@ class Ui(QtWidgets.QMainWindow):
         'qlabel_climber_indicator':{'widget':self.qlabel_climber_indicator, 'nt':'/SmartDashboard/climber_state', 'command': None},
         'qlabel_compressor_indicator': {'widget':self.qlabel_compressor_indicator, 'nt':'/SmartDashboard/compressor_state', 'command': None},
         'qlabel_compressor_enabled_indicator': {'widget': self.qlabel_compressor_enabled_indicator, 'nt': '/SmartDashboard/compressor_close_loop', 'command': 'toggle compressor'},
+        'qlabel_high_gear_indicator': {'widget': self.qlabel_high_gear_indicator, 'nt': '/SmartDashboard/pneumatics_high_gear', 'command': None},
         'qlabel_indexer_indicator': {'widget':self.qlabel_indexer_indicator, 'nt':'/SmartDashboard/indexer_state', 'command': None},
         'qlabel_intake_indicator': {'widget': self.qlabel_intake_indicator, 'nt': '/SmartDashboard/intake_motor_state', 'command': None},
         'qlabel_intake_piston_indicator': {'widget':self.qlabel_intake_piston_indicator, 'nt':'/SmartDashboard/intake_extended', 'command': None},

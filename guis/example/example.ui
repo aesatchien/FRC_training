@@ -118,7 +118,7 @@
      <widget class="QGroupBox" name="groupBox_4">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>360</x>
         <y>0</y>
         <width>181</width>
         <height>301</height>
@@ -192,11 +192,43 @@ background-color:rgb(80, 235, 0);</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
+      <widget class="QLabel" name="qlabel_high_gear_indicator">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>120</y>
+         <width>161</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">border: 7px;
+border-radius: 7px;
+background-color:rgb(80, 235, 0);</string>
+       </property>
+       <property name="text">
+        <string>High Gear</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox">
       <property name="geometry">
        <rect>
-        <x>190</x>
+        <x>0</x>
         <y>0</y>
         <width>181</width>
         <height>301</height>
@@ -306,7 +338,7 @@ background-color:rgb(80, 235, 0);</string>
      <widget class="QGroupBox" name="groupBox_2">
       <property name="geometry">
        <rect>
-        <x>380</x>
+        <x>180</x>
         <y>0</y>
         <width>181</width>
         <height>301</height>
@@ -430,7 +462,7 @@ background-color:rgb(80, 235, 0);</string>
      <widget class="QGroupBox" name="groupBox_3">
       <property name="geometry">
        <rect>
-        <x>570</x>
+        <x>540</x>
         <y>0</y>
         <width>181</width>
         <height>301</height>
@@ -706,7 +738,7 @@ background-color:rgb(10, 10, 227);</string>
      <x>0</x>
      <y>0</y>
      <width>1624</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
