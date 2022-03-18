@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import Qt, QTimer  # QObject, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, QEvent  # QObject, QThread, pyqtSignal
 #from PyQt5.QtWidgets import  QApplication, QTreeWidget, QTreeWidgetItem
 
 import networktables
@@ -54,6 +54,9 @@ class Ui(QtWidgets.QMainWindow):
         self.qcombobox_autonomous_routines.currentTextChanged.connect(self.update_routines)
         self.qt_text_entry_filter.textChanged.connect(self.filter_nt_keys_combo)
 
+        self.qt_text_entry_filter.installEventFilter(self)
+        self.qt_text_new_value.installEventFilter(self)
+
         # button connections
         self.qt_button_set_key.clicked.connect(self.update_key)
         self.qt_button_test.clicked.connect(self.test)
@@ -74,6 +77,12 @@ class Ui(QtWidgets.QMainWindow):
         # children.sort()
         # for child in children:
         #    print(child)
+
+    def eventFilter(self, obj, event):
+        if (obj is self.qt_text_entry_filter or obj is self.qt_text_new_value) and event.type() ==  QEvent.KeyPress:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                return True
+        return super().eventFilter(obj, event)
 
     def test(self):
         print('Test was called')
