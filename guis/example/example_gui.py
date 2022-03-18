@@ -13,6 +13,7 @@ from PyQt5.QtCore import Qt, QTimer  # QObject, QThread, pyqtSignal
 #from PyQt5.QtWidgets import  QApplication, QTreeWidget, QTreeWidgetItem
 
 import networktables
+from _pyntcore._ntcore import NetworkTableType
 
 #print(f'Initializing GUI ...', flush=True)
 
@@ -32,7 +33,7 @@ class Ui(QtWidgets.QMainWindow):
         self.servers = ["127.0.0.1", "10.24.29.2"] #  "roboRIO-2429-FRC.local"]  # need to add the USB one here
         self.ntinst.startClient(servers=self.servers)
         self.connected = self.ntinst.isConnected()
-        self.sorted_tree = []  # keep a global list of all the nt addresses
+        self.sorted_tree = None  # keep a global list of all the nt addresses
         self.autonomous_list = []  # set up an autonomous list
 
         self.refresh_time = 50  # milliseconds before refreshing
@@ -41,21 +42,23 @@ class Ui(QtWidgets.QMainWindow):
         self.initialize_widgets()
         #QTimer.singleShot(2000, self.initialize_widgets())  # wait 2s for NT to initialize
 
-
         # all of your setup code goes here - linking buttons to functions, etc (move to seperate funciton if too long)
 
+        # menu items
         self.qaction_show_hide.triggered.connect(self.toggle_network_tables)  # show/hide networktables
         self.qaction_refresh.triggered.connect(self.refresh_tree)
 
+        # widget customization
         #self.qlistwidget_commands.setStyleSheet("QListView::item:selected{background-color: rgb(255,255,255);color: rgb(0,0,0);}")
         self.qlistwidget_commands.clicked.connect(self.command_list_clicked)
         self.qcombobox_autonomous_routines.currentTextChanged.connect(self.update_routines)
+        self.qt_text_entry_filter.textChanged.connect(self.filter_nt_keys_combo)
 
+        # button connections
+        self.qt_button_set_key.clicked.connect(self.update_key)
         self.qt_button_test.clicked.connect(self.test)
 
-        #QtWidgets.QLabel.image
-        #self.qlabel_hub_image.
-
+        # hide networktables
         self.qt_tree_widget_nt.hide()
 
         # at the end of init, you need to show yourself
@@ -66,6 +69,7 @@ class Ui(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_widgets)
         self.timer.start(self.refresh_time)
 
+        # if you need to print out the list of children
         # children = [(child.objectName()) for child in self.findChildren(QtWidgets.QWidget) if child.objectName()]
         # children.sort()
         # for child in children:
@@ -73,6 +77,37 @@ class Ui(QtWidgets.QMainWindow):
 
     def test(self):
         print('Test was called')
+
+    def filter_nt_keys_combo(self):
+        if self.sorted_tree is not None:
+            self.qcombobox_nt_keys.clear()
+            filter = self.qt_text_entry_filter.toPlainText()
+            filtered_keys = [key for key in self.sorted_tree if filter in key]
+            self.qcombobox_nt_keys.addItems(filtered_keys)
+
+    def update_key(self):
+        key = self.qcombobox_nt_keys.currentText()
+        entry = self.ntinst.getEntry(key)
+        entry_type = entry.getType()
+        new_val = self.qt_text_new_value.toPlainText()
+        print(f'Update key was called on {key}, which is a {entry_type}.  Setting it to {new_val}')
+        try:
+            #t = QtWidgets.QPlainTextEdit()
+            if entry_type == NetworkTableType.kDouble:
+                new_val = float(new_val)
+                entry.setDouble(new_val)
+            elif entry_type == NetworkTableType.kString:
+                entry.setString(new_val)
+            elif entry_type == NetworkTableType.kBoolean:
+                new_val = eval(new_val)
+                entry.setBoolean(new_val)
+            else:
+                self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: {key} type {entry_type} not in [double, bool, string]')
+        except Exception as e:
+            self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: Error occurred in setting {key} - {e}')
+        self.qt_text_new_value.clear()
+        self.refresh_tree()
+
 
     # update the autonomous routines - should make this general for any chooser
     def update_routines(self, text):
@@ -83,7 +118,7 @@ class Ui(QtWidgets.QMainWindow):
 
     # eventually we may want to tie commands to clicking labels
     def label_click(self, label):
-        print(self.command_dict[label]['command'])
+        print(f"Associated command to {label} is: {self.command_dict[label]['command']}")
 
     # set up appropriate entries for all the widgets we care about
     def initialize_widgets(self):
@@ -193,6 +228,7 @@ class Ui(QtWidgets.QMainWindow):
         print(f'You clicked {cell_content} which is currently {not toggled_state}.  Firing command...')
         self.command_dict[cell_content]['entry'].setBoolean(toggled_state)
 
+    # -------------------  UPDATING NETWORK TABLES DISPLAY --------------------------
     def toggle_network_tables(self):
         # tree = QtWidgets.QTreeWidget
         if self.qt_tree_widget_nt.isHidden():
@@ -206,6 +242,8 @@ class Ui(QtWidgets.QMainWindow):
         self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: NT status: id={id}, ip={ip}')
 
     def refresh_tree(self):
+        """  Read networktables and update tree and combo widgets
+        """
         self.connected = self.ntinst.isConnected()
         if self.connected:
             self.report_nt_status()
@@ -213,6 +251,10 @@ class Ui(QtWidgets.QMainWindow):
             entries = self.ntinst.getEntries('/', types=0)
             self.sorted_tree = sorted([e.getName() for e in entries])
 
+            # update the dropdown combo box with all keys
+            self.filter_nt_keys_combo()
+            # self.qcombobox_nt_keys.clear()
+            # self.qcombobox_nt_keys.addItems(self.sorted_tree)
 
             # generate the dictionary - some magic I found on the internet
             nt_dict = {}
@@ -224,11 +266,9 @@ class Ui(QtWidgets.QMainWindow):
                         current_level[part] = {}
                     current_level = current_level[part]
 
-            ages = []
-
             self.qlistwidget_commands.clear()
             for item in self.sorted_tree:
-                print(item)
+                # print(item)
                 if 'running' in item:  # quick test of the list view for commands
                     # print(f'Command found: {item}')
                     command_name = item.split('/')[2]
@@ -252,6 +292,7 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: Unable to connect to server')
 
+    # -------------------  HELPER FUNCTIONS FOR THE DICTIONARIES --------------------------
     def depth(self, d):
         if isinstance(d, dict):
             return 1 + (max(map(self.depth, d.values())) if d else 0)
