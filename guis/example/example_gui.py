@@ -154,6 +154,7 @@ class Ui(QtWidgets.QMainWindow):
         'hub_targets': {'widget': None, 'nt': '/BallCam//green/targets', 'command': None},
         'hub_rotation': {'widget': None, 'nt': '/BallCam//green/rotation', 'command': None},
         'hub_distance': {'widget': None, 'nt': '/BallCam//green/distance', 'command': None},
+        'drive_pose': {'widget': None, 'nt': '/SmartDashboard/drive_pose', 'command': None},
         }
 
         # get all the entries
@@ -212,7 +213,7 @@ class Ui(QtWidgets.QMainWindow):
         hub_targets = self.widget_dict['hub_targets']['entry'].getDouble(0)
         hub_rotation = self.widget_dict['hub_rotation']['entry'].getDouble(0) - 5
         hub_distance = self.widget_dict['hub_distance']['entry'].getDouble(0)
-        print(f'hub_targets: {hub_targets} {hub_rotation:2.2f} {hub_distance:2.2f}', end='\r')
+        # print(f'hub_targets: {hub_targets} {hub_rotation:2.2f} {hub_distance:2.2f}', end='\r')
 
         if hub_targets > 0:
             # shooter_rpm = self.widget_dict['qlcd_shooter_rpm']['entry'].getDouble(0)
@@ -227,8 +228,13 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.qlabel_ball.move(100, 200)
 
-        # x0, y0 = self.qlabel_ball.x(),  self.qlabel_ball.y()
-        # self.qlabel_ball.move((x0 + 5) % 500, (y0 + 5) % 380)
+        # update the pose
+        width, height = self.qgroupbox_field.width(), self.qgroupbox_field.height()
+        bot_width, bot_height = self.qlabel_robot.width(), self.qlabel_robot.height()
+        x_lim, y_lim = 16.4, 8.2
+        drive_pose = self.widget_dict['drive_pose']['entry'].getDoubleArray([0,0,0])
+        self.qlabel_robot.move(int(-bot_width/2 + width * drive_pose[0] / x_lim ), int(-bot_height/2 + height * (1 - drive_pose[1] / y_lim)))
+        print(f'Pose X:{drive_pose[0]:2.2f} Pose Y:{drive_pose[1]:2.2f} Pose R:{drive_pose[2]:2.2f}', end='\r', flush=True)
 
     def command_list_clicked(self, item):
         # shortcut where we click the command list, fire off (or end) the command
