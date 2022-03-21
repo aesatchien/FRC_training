@@ -12,6 +12,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt, QTimer, QEvent  # QObject, QThread, pyqtSignal
 #from PyQt5.QtWidgets import  QApplication, QTreeWidget, QTreeWidgetItem
 
+import qlabel2
+
 import networktables
 from _pyntcore._ntcore import NetworkTableType
 
@@ -23,6 +25,7 @@ class Ui(QtWidgets.QMainWindow):
     png_dir = root_dir / 'png'
     save_dir = root_dir / 'save'
 
+    # -------------------  INIT  --------------------------
     def __init__(self):
         super(Ui, self).__init__()
         # trick to inherit all the UI elements from the design file  - DO NOT CODE THE LAYOUT!
@@ -78,23 +81,19 @@ class Ui(QtWidgets.QMainWindow):
         # for child in children:
         #    print(child)
 
-    def eventFilter(self, obj, event):
-        if (obj is self.qt_text_entry_filter or obj is self.qt_text_new_value) and event.type() ==  QEvent.KeyPress:
-            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-                return True
-        return super().eventFilter(obj, event)
+    # ------------------- FUNCTIONS, MISC FOR NOW  --------------------------
 
-    def test(self):
+    def test(self):  # test function for checking new signals
         print('Test was called')
 
-    def filter_nt_keys_combo(self):
+    def filter_nt_keys_combo(self):  # used to simplify the nt key list combo box entries
         if self.sorted_tree is not None:
             self.qcombobox_nt_keys.clear()
             filter = self.qt_text_entry_filter.toPlainText()
             filtered_keys = [key for key in self.sorted_tree if filter in key]
             self.qcombobox_nt_keys.addItems(filtered_keys)
 
-    def update_key(self):
+    def update_key(self):  # used to modify an nt key value from the TUNING tab
         key = self.qcombobox_nt_keys.currentText()
         entry = self.ntinst.getEntry(key)
         entry_type = entry.getType()
@@ -118,34 +117,43 @@ class Ui(QtWidgets.QMainWindow):
         self.refresh_tree()
 
 
-    # update the autonomous routines - should make this general for any chooser
+    # update the autonomous routines - ToDo make this general for any chooser (pass the widget to currentTextChanged)
     def update_routines(self, text):
         key = self.widget_dict['qcombobox_autonomous_routines']['selected']
         self.ntinst.getEntry(key).setString(text)
         self.ntinst.flush()
         # print(f'Set NT value to {text}', flush=True)
 
-    # eventually we may want to tie commands to clicking labels
+    # tie commands to clicking labels - had to promote the labels to a class that has a click
+    # Todo - make the commands dictionary and this use the same code - it's a bit redundant
     def label_click(self, label):
-        print(f"Associated command to {label} is: {self.command_dict[label]['command']}")
+        # print(f"Running command to {label} {self.widget_dict[label]['command']}")
+        toggled_state = not self.widget_dict[label]['command_entry'].getBoolean(True)
+        print(f'You clicked {label} whose command is currently {not toggled_state}.  Firing command...')
+        self.widget_dict[label]['command_entry'].setBoolean(toggled_state)
 
+    # ------------------- INITIALIZING WIDGETS --------------------------
     # set up appropriate entries for all the widgets we care about
     def initialize_widgets(self):
-
         self.widget_dict = {
         'qcombobox_autonomous_routines': {'widget':self.qcombobox_autonomous_routines, 'nt':r'/SmartDashboard/autonomous routines/options', 'command':None,
                                           'selected': r'/SmartDashboard/autonomous routines/selected'},
         'qlabel_camera_view': {'widget':self.qlabel_camera_view, 'nt':None, 'command':None},
         'qlabel_climber_indicator':{'widget':self.qlabel_climber_indicator, 'nt':'/SmartDashboard/climber_state', 'command': None},
         'qlabel_compressor_indicator': {'widget':self.qlabel_compressor_indicator, 'nt':'/SmartDashboard/compressor_state', 'command': None},
-        'qlabel_compressor_enabled_indicator': {'widget': self.qlabel_compressor_enabled_indicator, 'nt': '/SmartDashboard/compressor_close_loop', 'command': 'toggle compressor'},
+        'qlabel_compressor_enabled_indicator': {'widget': self.qlabel_compressor_enabled_indicator, 'nt': '/SmartDashboard/compressor_close_loop',
+                                                'command': '/SmartDashboard/CompressorToggle/running'},
         'qlabel_high_gear_indicator': {'widget': self.qlabel_high_gear_indicator, 'nt': '/SmartDashboard/pneumatics_high_gear', 'command': None},
-        'qlabel_indexer_indicator': {'widget':self.qlabel_indexer_indicator, 'nt':'/SmartDashboard/indexer_state', 'command': None},
-        'qlabel_intake_indicator': {'widget': self.qlabel_intake_indicator, 'nt': '/SmartDashboard/intake_motor_state', 'command': None},
-        'qlabel_intake_piston_indicator': {'widget':self.qlabel_intake_piston_indicator, 'nt':'/SmartDashboard/intake_extended', 'command': None},
+        'qlabel_indexer_indicator': {'widget':self.qlabel_indexer_indicator, 'nt':'/SmartDashboard/indexer_state',
+                                     'command': '/SmartDashboard/IndexerHold/running'},
+        'qlabel_intake_indicator': {'widget': self.qlabel_intake_indicator, 'nt': '/SmartDashboard/intake_motor_state',
+                                    'command': '/SmartDashboard/IntakeMotorToggle/running'},
+        'qlabel_intake_piston_indicator': {'widget':self.qlabel_intake_piston_indicator, 'nt':'/SmartDashboard/intake_extended',
+                                           'command': '/SmartDashboard/IntakePistonToggle/running'},
         'qlabel_long_arm_indicator': {'widget':self.qlabel_long_arm_indicator, 'nt':'/SmartDashboard/climber_long_arm', 'command': None},
         'qlabel_nt_connected': {'widget': self.qlabel_nt_connected, 'nt': None, 'command': None},
-        'qlabel_shooter_indicator': {'widget':self.qlabel_shooter_indicator, 'nt':'/SmartDashboard/shooter_state', 'command': None},
+        'qlabel_shooter_indicator': {'widget':self.qlabel_shooter_indicator, 'nt':'/SmartDashboard/shooter_state',
+                                     'command': '/SmartDashboard/ShooterToggle/running'},
         'qlabel_shooter_speed_indicator': {'widget':self.qlabel_shooter_speed_indicator, 'nt':'/SmartDashboard/shooter_ready', 'command': None},
         'qlabel_short_arm_indicator': {'widget':self.qlabel_short_arm_indicator, 'nt':'/SmartDashboard/climber_short_arm', 'command': None},
         'qlcd_climber_current': {'widget':self.qlcd_climber_current, 'nt':'/SmartDashboard/climber_current', 'command': None},
@@ -157,13 +165,19 @@ class Ui(QtWidgets.QMainWindow):
         'drive_pose': {'widget': None, 'nt': '/SmartDashboard/drive_pose', 'command': None},
         }
 
-        # get all the entries
+        # get all the entries and add them to the dictionary
         for key, d in self.widget_dict.items():
             if d['nt'] is not None:
                 d.update({'entry':self.ntinst.getEntry(d['nt'])})
             else:
                 d.update({'entry': None})
-            print(key, d)
+            if d['command'] is not None:
+                d.update({'command_entry': self.ntinst.getEntry(d['command'])})
+                # assign a command clicked to it
+                d['widget'].clicked.connect(lambda label=key: self.label_click(label))
+            else:
+                d.update({'command_entry': None})
+            print(f'Widget {key}: {d}')
 
     def update_widgets(self):
         """ Main function which is looped to update the GUI with NT values"""
@@ -218,7 +232,6 @@ class Ui(QtWidgets.QMainWindow):
         if hub_targets > 0:
             # shooter_rpm = self.widget_dict['qlcd_shooter_rpm']['entry'].getDouble(0)
             shooter_rpm = 2000
-
             shooter_distance = shooter_rpm * 0.00075
             center_offset = shooter_distance * -np.sin(hub_rotation * 3.14159 / 180)
             x = 205 + center_offset * (380 / 1.2) # 380 px per 1.2 m
@@ -234,13 +247,13 @@ class Ui(QtWidgets.QMainWindow):
         x_lim, y_lim = 16.4, 8.2
         drive_pose = self.widget_dict['drive_pose']['entry'].getDoubleArray([0,0,0])
         self.qlabel_robot.move(int(-bot_width/2 + width * drive_pose[0] / x_lim ), int(-bot_height/2 + height * (1 - drive_pose[1] / y_lim)))
-        print(f'Pose X:{drive_pose[0]:2.2f} Pose Y:{drive_pose[1]:2.2f} Pose R:{drive_pose[2]:2.2f}', end='\r', flush=True)
+        ## print(f'Pose X:{drive_pose[0]:2.2f} Pose Y:{drive_pose[1]:2.2f} Pose R:{drive_pose[2]:2.2f}', end='\r', flush=True)
 
     def command_list_clicked(self, item):
         # shortcut where we click the command list, fire off (or end) the command
         cell_content = item.data()
         toggled_state = not self.command_dict[cell_content]['entry'].getBoolean(True)
-        print(f'You clicked {cell_content} which is currently {not toggled_state}.  Firing command...')
+        print(f'You clicked {cell_content} which is currently {not toggled_state}.  Firing command...', flush=True)
         self.command_dict[cell_content]['entry'].setBoolean(toggled_state)
 
     # -------------------  UPDATING NETWORK TABLES DISPLAY --------------------------
@@ -307,7 +320,13 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: Unable to connect to server')
 
-    # -------------------  HELPER FUNCTIONS FOR THE DICTIONARIES --------------------------
+    # -------------------  HELPER FUNCTIONS FOR THE DICTIONARIES AND WIDGETS --------------------------
+    def eventFilter(self, obj, event):
+        if (obj is self.qt_text_entry_filter or obj is self.qt_text_new_value) and event.type() ==  QEvent.KeyPress:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                return True
+        return super().eventFilter(obj, event)
+
     def depth(self, d):
         if isinstance(d, dict):
             return 1 + (max(map(self.depth, d.values())) if d else 0)

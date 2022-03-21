@@ -160,7 +160,7 @@ color:rgb(0, 0, 0);</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="qlabel_compressor_enabled_indicator">
+      <widget class="QLabel2" name="qlabel_compressor_enabled_indicator">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -237,7 +237,7 @@ background-color:rgb(80, 235, 0);</string>
       <property name="title">
        <string>Intake/Indexer</string>
       </property>
-      <widget class="QLabel" name="qlabel_intake_indicator">
+      <widget class="QLabel2" name="qlabel_intake_indicator">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -270,7 +270,7 @@ background-color:rgb(80, 235, 0);</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="qlabel_intake_piston_indicator">
+      <widget class="QLabel2" name="qlabel_intake_piston_indicator">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -302,7 +302,7 @@ background-color:rgb(80, 235, 0);</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="qlabel_indexer_indicator">
+      <widget class="QLabel2" name="qlabel_indexer_indicator">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -413,7 +413,7 @@ background-color:rgb(80, 235, 0);</string>
         <enum>QLCDNumber::Filled</enum>
        </property>
       </widget>
-      <widget class="QLabel" name="qlabel_shooter_indicator">
+      <widget class="QLabel2" name="qlabel_shooter_indicator">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -1031,6 +1031,13 @@ background-color:rgb(80, 235, 0);</string>
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QLabel2</class>
+   <extends>QLabel</extends>
+   <header>qlabel2.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
