@@ -3,7 +3,6 @@
 
 # print(f'Loading Modules ...', flush=True)
 import time
-from math import sin
 from datetime import datetime
 from pathlib import Path
 import numpy as np
@@ -84,7 +83,7 @@ class Ui(QtWidgets.QMainWindow):
     # ------------------- FUNCTIONS, MISC FOR NOW  --------------------------
 
     def test(self):  # test function for checking new signals
-        print('Test was called')
+        print('Test was called', flush=True)
 
     def filter_nt_keys_combo(self):  # used to simplify the nt key list combo box entries
         if self.sorted_tree is not None:
@@ -98,7 +97,7 @@ class Ui(QtWidgets.QMainWindow):
         entry = self.ntinst.getEntry(key)
         entry_type = entry.getType()
         new_val = self.qt_text_new_value.toPlainText()
-        print(f'Update key was called on {key}, which is a {entry_type}.  Setting it to {new_val}')
+        print(f'Update key was called on {key}, which is a {entry_type}.  Setting it to {new_val}', flush=True)
         try:
             #t = QtWidgets.QPlainTextEdit()
             if entry_type == NetworkTableType.kDouble:
@@ -129,7 +128,7 @@ class Ui(QtWidgets.QMainWindow):
     def label_click(self, label):
         # print(f"Running command to {label} {self.widget_dict[label]['command']}")
         toggled_state = not self.widget_dict[label]['command_entry'].getBoolean(True)
-        print(f'You clicked {label} whose command is currently {not toggled_state}.  Firing command...')
+        print(f'You clicked {label} whose command is currently {not toggled_state}.  Firing command...', flush=True)
         self.widget_dict[label]['command_entry'].setBoolean(toggled_state)
 
     # ------------------- INITIALIZING WIDGETS --------------------------

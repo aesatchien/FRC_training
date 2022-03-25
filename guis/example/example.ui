@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>FRC 2429 Blockhead Dashboard</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>png/blockhead.ico</normaloff>png/blockhead.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTreeWidget" name="qt_tree_widget_nt">
     <property name="geometry">
