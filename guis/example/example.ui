@@ -107,9 +107,9 @@
     <property name="geometry">
      <rect>
       <x>340</x>
-      <y>10</y>
+      <y>30</y>
       <width>771</width>
-      <height>481</height>
+      <height>451</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -142,8 +142,8 @@
        </property>
        <property name="font">
         <font>
-         <family>Arial Narrow</family>
-         <pointsize>16</pointsize>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>14</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -155,7 +155,8 @@ background-color:rgb(80, 235, 0);
 color:rgb(0, 0, 0);</string>
        </property>
        <property name="text">
-        <string>COMPRESSOR ON</string>
+        <string>COMPRESSOR
+ ON</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -176,7 +177,7 @@ color:rgb(0, 0, 0);</string>
        <property name="font">
         <font>
          <family>MS Shell Dlg 2</family>
-         <pointsize>11</pointsize>
+         <pointsize>12</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -187,7 +188,7 @@ border-radius: 7px;
 background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="text">
-        <string>Compressor Enabled</string>
+        <string>ENABLED</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -252,8 +253,8 @@ background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="font">
         <font>
-         <family>Arial Narrow</family>
-         <pointsize>18</pointsize>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>14</pointsize>
          <weight>75</weight>
          <italic>false</italic>
          <bold>true</bold>
@@ -285,8 +286,8 @@ background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="font">
         <font>
-         <family>Arial Narrow</family>
-         <pointsize>14</pointsize>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>12</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -297,7 +298,7 @@ border-radius: 7px;
 background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="text">
-        <string>Intake Extended</string>
+        <string>EXTENDED</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -310,14 +311,14 @@ background-color:rgb(80, 235, 0);</string>
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>124</y>
+         <y>130</y>
          <width>161</width>
-         <height>31</height>
+         <height>41</height>
         </rect>
        </property>
        <property name="font">
         <font>
-         <family>Comic Sans MS</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>12</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -329,7 +330,7 @@ border-radius: 7px;
 background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="text">
-        <string>Indexer On</string>
+        <string>INDEXER ON</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -350,7 +351,7 @@ background-color:rgb(80, 235, 0);</string>
       </property>
       <property name="font">
        <font>
-        <family>Comic Sans MS</family>
+        <family>MS Shell Dlg 2</family>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -440,7 +441,7 @@ border-radius: 7px;
 background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="text">
-        <string>Shooter On</string>
+        <string>SHOOTER ON</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -497,7 +498,7 @@ border-radius: 7px;
 background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="text">
-        <string>Climber On</string>
+        <string>CLIMBER ON</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -625,7 +626,7 @@ background-color:rgb(80, 235, 0);</string>
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>330</y>
+        <y>360</y>
         <width>191</width>
         <height>22</height>
        </rect>
@@ -641,8 +642,8 @@ background-color:rgb(80, 235, 0);</string>
      <widget class="QLabel" name="label_5">
       <property name="geometry">
        <rect>
-        <x>280</x>
-        <y>310</y>
+        <x>270</x>
+        <y>330</y>
         <width>181</width>
         <height>20</height>
        </rect>
@@ -962,7 +963,7 @@ background-color:rgb(10, 10, 227);</string>
    <widget class="QLabel" name="qlabel_nt_connected">
     <property name="geometry">
      <rect>
-      <x>640</x>
+      <x>340</x>
       <y>0</y>
       <width>131</width>
       <height>20</height>
@@ -991,6 +992,40 @@ background-color:rgb(80, 235, 0);</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QLabel2" name="qlabel_matchtime">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>0</y>
+      <width>111</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial Narrow</family>
+      <pointsize>24</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 7px;
+border-radius: 15px;
+color:rgb(255, 255, 255);
+background-color:rgb(0, 20, 250);</string>
+    </property>
+    <property name="text">
+     <string>15</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::AutoText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <zorder>tabWidget</zorder>
    <zorder>qt_text_status</zorder>
    <zorder>qt_button_test</zorder>
@@ -998,6 +1033,7 @@ background-color:rgb(80, 235, 0);</string>
    <zorder>qt_tree_widget_nt</zorder>
    <zorder>tabWidget_2</zorder>
    <zorder>qlabel_nt_connected</zorder>
+   <zorder>qlabel_matchtime</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

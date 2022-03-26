@@ -150,13 +150,14 @@ class Ui(QtWidgets.QMainWindow):
         'qlabel_intake_piston_indicator': {'widget':self.qlabel_intake_piston_indicator, 'nt':'/SmartDashboard/intake_extended',
                                            'command': '/SmartDashboard/IntakePistonToggle/running'},
         'qlabel_long_arm_indicator': {'widget':self.qlabel_long_arm_indicator, 'nt':'/SmartDashboard/climber_long_arm', 'command': None},
+        'qlabel_matchtime': {'widget': self.qlabel_matchtime, 'nt': '/SmartDashboard/match_time', 'command': None},
         'qlabel_nt_connected': {'widget': self.qlabel_nt_connected, 'nt': None, 'command': None},
         'qlabel_shooter_indicator': {'widget':self.qlabel_shooter_indicator, 'nt':'/SmartDashboard/shooter_state',
                                      'command': '/SmartDashboard/ShooterToggle/running'},
         'qlabel_shooter_speed_indicator': {'widget':self.qlabel_shooter_speed_indicator, 'nt':'/SmartDashboard/shooter_ready', 'command': None},
         'qlabel_short_arm_indicator': {'widget':self.qlabel_short_arm_indicator, 'nt':'/SmartDashboard/climber_short_arm', 'command': None},
         'qlcd_climber_current': {'widget':self.qlcd_climber_current, 'nt':'/SmartDashboard/climber_current', 'command': None},
-        'qlcd_climber_position': {'widget': self.qlcd_climber_current, 'nt': '/SmartDashboard/climber_position', 'command': None},
+        'qlcd_climber_position': {'widget': self.qlcd_climber_position, 'nt': '/SmartDashboard/climber_position', 'command': None},
         'qlcd_shooter_rpm': {'widget':self.qlcd_shooter_rpm, 'nt':'/SmartDashboard/shooter_rpm', 'command': None},
         'hub_targets': {'widget': None, 'nt': '/BallCam//green/targets', 'command': None},
         'hub_rotation': {'widget': None, 'nt': '/BallCam//green/rotation', 'command': None},
@@ -182,6 +183,8 @@ class Ui(QtWidgets.QMainWindow):
         """ Main function which is looped to update the GUI with NT values"""
         style_on = "border: 7px; border-radius: 7px; background-color:rgb(80, 235, 0); color:rgb(0, 0, 0);"
         style_off = "border: 7px; border-radius: 7px; background-color:rgb(220, 0, 0); color:rgb(200, 200, 200);"
+        style_high = "border: 7px; border-radius: 15px; background-color:rgb(80, 235, 0); color:rgb(0, 0, 0);"
+        style_low = "border: 7px; border-radius: 15px; background-color:rgb(0, 20, 255); color:rgb(255, 255, 255);"
 
         # update the connection indicator
         style = style_on if self.ntinst.isConnected() else style_off
@@ -198,7 +201,7 @@ class Ui(QtWidgets.QMainWindow):
                     #  print(f'LCD: {key}')
                     value = int(d['entry'].getDouble(0))
                     d['widget'].display(str(value))
-                elif 'combo' in key:  # need a simpler way to update the combo boxes
+                elif 'combo' in key:  # ToDo: need a simpler way to update the combo boxes
                     new_list = d['entry'].getStringArray([])
                     if new_list != self.autonomous_list:
                         d['widget'].blockSignals(True)  # don't call updates on this one
@@ -211,6 +214,16 @@ class Ui(QtWidgets.QMainWindow):
                         d['widget'].blockSignals(True)  # don't call updates on this one
                         d['widget'].setCurrentText(selected_routine)
                         d['widget'].blockSignals(False)
+                elif 'time' in key:
+
+                    match_time = d['entry'].getDouble(0)
+                    d['widget'].setText(str(int(match_time)))
+                    if match_time < 30:
+                        d['widget'].setText(f'* {int(match_time)} *')
+                        d['widget'].setStyleSheet(style_low)
+                    else:
+                        d['widget'].setText(str(int(match_time)))
+                        d['widget'].setStyleSheet(style_high)
                 else:
                     pass
                     # print(f'Skipping: {key}')
