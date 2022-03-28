@@ -100,7 +100,10 @@
      <enum>QFrame::Raised</enum>
     </property>
     <property name="text">
-     <string>Camera View</string>
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>png/blockhead.ico</pixmap>
     </property>
    </widget>
    <widget class="QTabWidget" name="tabWidget">
@@ -1026,6 +1029,31 @@ background-color:rgb(0, 20, 250);</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QComboBox" name="qcombobox_cameras">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>260</y>
+      <width>171</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="qt_button_camera_enable">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>258</y>
+      <width>121</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Show Camera</string>
+    </property>
+   </widget>
+   <zorder>qcombobox_cameras</zorder>
+   <zorder>qt_button_camera_enable</zorder>
    <zorder>tabWidget</zorder>
    <zorder>qt_text_status</zorder>
    <zorder>qt_button_test</zorder>
@@ -1041,7 +1069,7 @@ background-color:rgb(0, 20, 250);</string>
      <x>0</x>
      <y>0</y>
      <width>1624</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -5,6 +5,8 @@
 import time
 from datetime import datetime
 from pathlib import Path
+import urllib.request
+import cv2
 import numpy as np
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
@@ -41,6 +43,11 @@ class Ui(QtWidgets.QMainWindow):
         self.refresh_time = 50  # milliseconds before refreshing
         self.widget_dict = {}
         self.command_dict = {}
+        self.camera_dict = {'BallCam': 'http://10.24.29.12:1186/stream.mjpg',
+                            'ShooterCam': 'http://10.24.29.12:1187/stream.mjpg',
+                            'Raw Balls': 'http://10.24.29.12:1181/stream.mjpg',
+                            'Raw Shooter': 'http://10.24.29.12:1182/stream.mjpg'}
+
         self.initialize_widgets()
         #QTimer.singleShot(2000, self.initialize_widgets())  # wait 2s for NT to initialize
 
@@ -62,6 +69,7 @@ class Ui(QtWidgets.QMainWindow):
         # button connections
         self.qt_button_set_key.clicked.connect(self.update_key)
         self.qt_button_test.clicked.connect(self.test)
+        self.qt_button_camera_enable.clicked.connect(self.show_stream)
 
         # hide networktables
         self.qt_tree_widget_nt.hide()
@@ -74,6 +82,8 @@ class Ui(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_widgets)
         self.timer.start(self.refresh_time)
 
+
+
         # if you need to print out the list of children
         # children = [(child.objectName()) for child in self.findChildren(QtWidgets.QWidget) if child.objectName()]
         # children.sort()
@@ -81,6 +91,34 @@ class Ui(QtWidgets.QMainWindow):
         #    print(child)
 
     # ------------------- FUNCTIONS, MISC FOR NOW  --------------------------
+
+    def convert_cv_qt(self, cv_img, qlabel):
+        """Convert from an opencv image to QPixmap"""
+        rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb_image.shape
+        bytes_per_line = ch * w
+        convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+        p = convert_to_Qt_format.scaled(qlabel.width(), qlabel.height(), Qt.KeepAspectRatio)
+        return QtGui.QPixmap.fromImage(p)
+
+    def show_stream(self):
+        url = self.camera_dict[self.qcombobox_cameras.currentText()]  # figure out which url we want
+        # stream = urllib.request.urlopen('http://10.24.29.12:1187/stream.mjpg')
+        cap = cv2.VideoCapture(url)
+        ret, frame = cap.read()
+        pixmap = self.convert_cv_qt(frame, self.qlabel_camera_view)
+        self.qlabel_camera_view.setPixmap(pixmap)
+        self.qlabel_camera_view.repaint()
+        '''stream_bytes = bytes()
+            if True:
+            stream_bytes += stream.read(1024)
+            a = stream_bytes.find(b'\xff\xd8')
+            b = stream_bytes.find(b'\xff\xd9')
+            print(f'Test was called: a={a} b={b}', flush=True)
+            if a != -1 and b != -1:
+                jpg = stream_bytes[a:b + 2]
+                stream_bytes = stream_bytes[b + 2:]
+                im = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)'''
 
     def test(self):  # test function for checking new signals
         print('Test was called', flush=True)
@@ -178,6 +216,9 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 d.update({'command_entry': None})
             print(f'Widget {key}: {d}')
+
+        for key, item in self.camera_dict.items():
+            self.qcombobox_cameras.addItem(key)
 
     def update_widgets(self):
         """ Main function which is looped to update the GUI with NT values"""
