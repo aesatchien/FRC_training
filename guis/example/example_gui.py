@@ -62,6 +62,8 @@ class Ui(QtWidgets.QMainWindow):
         self.qlistwidget_commands.clicked.connect(self.command_list_clicked)
         self.qcombobox_autonomous_routines.currentTextChanged.connect(self.update_routines)
         self.qt_text_entry_filter.textChanged.connect(self.filter_nt_keys_combo)
+        self.qcombobox_nt_keys.currentTextChanged.connect(self.update_selected_key)
+        self.qt_tree_widget_nt.clicked.connect(self.qt_tree_widget_nt_clicked)
 
         self.qt_text_entry_filter.installEventFilter(self)
         self.qt_text_new_value.installEventFilter(self)
@@ -82,8 +84,6 @@ class Ui(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_widgets)
         self.timer.start(self.refresh_time)
 
-
-
         # if you need to print out the list of children
         # children = [(child.objectName()) for child in self.findChildren(QtWidgets.QWidget) if child.objectName()]
         # children.sort()
@@ -91,6 +91,11 @@ class Ui(QtWidgets.QMainWindow):
         #    print(child)
 
     # ------------------- FUNCTIONS, MISC FOR NOW  --------------------------
+    def update_selected_key(self):
+
+        x = self.ntinst.getEntry(self.qcombobox_nt_keys.currentText()).getValue()
+        if x is not None:
+            self.qt_text_current_value.setPlainText(str(x.value()))
 
     def convert_cv_qt(self, cv_img, qlabel):
         """Convert from an opencv image to QPixmap"""
@@ -105,6 +110,9 @@ class Ui(QtWidgets.QMainWindow):
         url = self.camera_dict[self.qcombobox_cameras.currentText()]  # figure out which url we want
         # stream = urllib.request.urlopen('http://10.24.29.12:1187/stream.mjpg')
         cap = cv2.VideoCapture(url)
+        if not cap.isOpened():
+            print("Cannot open stream")
+            return
         ret, frame = cap.read()
         pixmap = self.convert_cv_qt(frame, self.qlabel_camera_view)
         self.qlabel_camera_view.setPixmap(pixmap)
@@ -291,8 +299,12 @@ class Ui(QtWidgets.QMainWindow):
             y = 190
 
             self.qlabel_ball.move(x, y)
+            if self.qlabel_ball.isHidden():
+                self.qlabel_ball.show()
         else:
-            self.qlabel_ball.move(100, 200)
+            #self.qlabel_ball.move(0, 0)
+            if not self.qlabel_ball.isHidden():
+                self.qlabel_ball.hide()
 
         # update the pose
         width, height = self.qgroupbox_field.width(), self.qgroupbox_field.height()
@@ -301,6 +313,12 @@ class Ui(QtWidgets.QMainWindow):
         drive_pose = self.widget_dict['drive_pose']['entry'].getDoubleArray([0,0,0])
         self.qlabel_robot.move(int(-bot_width/2 + width * drive_pose[0] / x_lim ), int(-bot_height/2 + height * (1 - drive_pose[1] / y_lim)))
         ## print(f'Pose X:{drive_pose[0]:2.2f} Pose Y:{drive_pose[1]:2.2f} Pose R:{drive_pose[2]:2.2f}', end='\r', flush=True)
+
+    def qt_tree_widget_nt_clicked(self, item):
+        # send the clicked item from the tree to the filter for the nt selction combo box
+        # print(f' Item clicked is: {item.data()}', flush=True)
+        self.qt_text_entry_filter.clear()
+        self.qt_text_entry_filter.setPlainText(item.data())
 
     def command_list_clicked(self, item):
         # shortcut where we click the command list, fire off (or end) the command

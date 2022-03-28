@@ -696,7 +696,7 @@ background-color:rgb(80, 235, 0);</string>
         <x>190</x>
         <y>10</y>
         <width>561</width>
-        <height>71</height>
+        <height>101</height>
        </rect>
       </property>
       <property name="title">
@@ -748,14 +748,14 @@ background-color:rgb(80, 235, 0);</string>
       <widget class="QLabel" name="label_7">
        <property name="geometry">
         <rect>
-         <x>480</x>
-         <y>0</y>
+         <x>10</x>
+         <y>50</y>
          <width>91</width>
          <height>16</height>
         </rect>
        </property>
        <property name="text">
-        <string>New Value</string>
+        <string>Current Value</string>
        </property>
       </widget>
       <widget class="QPlainTextEdit" name="qt_text_new_value">
@@ -764,9 +764,9 @@ background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>480</x>
-         <y>20</y>
-         <width>81</width>
+         <x>220</x>
+         <y>70</y>
+         <width>161</width>
          <height>21</height>
         </rect>
        </property>
@@ -777,8 +777,8 @@ background-color:rgb(80, 235, 0);</string>
       <widget class="QPushButton" name="qt_button_set_key">
        <property name="geometry">
         <rect>
-         <x>480</x>
-         <y>45</y>
+         <x>390</x>
+         <y>69</y>
          <width>81</width>
          <height>23</height>
         </rect>
@@ -795,7 +795,7 @@ background-color:rgb(80, 235, 0);</string>
         <rect>
          <x>160</x>
          <y>0</y>
-         <width>81</width>
+         <width>121</width>
          <height>21</height>
         </rect>
        </property>
@@ -804,6 +804,38 @@ background-color:rgb(80, 235, 0);</string>
        </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+      </widget>
+      <widget class="QPlainTextEdit" name="qt_text_current_value">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>70</y>
+         <width>191</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_9">
+       <property name="geometry">
+        <rect>
+         <x>220</x>
+         <y>50</y>
+         <width>91</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>New Value</string>
        </property>
       </widget>
      </widget>
@@ -1040,6 +1072,9 @@ background-color:rgb(0, 20, 250);</string>
     </property>
    </widget>
    <widget class="QPushButton" name="qt_button_camera_enable">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>200</x>
@@ -1069,7 +1104,7 @@ background-color:rgb(0, 20, 250);</string>
      <x>0</x>
      <y>0</y>
      <width>1624</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
