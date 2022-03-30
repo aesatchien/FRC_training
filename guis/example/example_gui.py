@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import Qt, QTimer, QEvent  # QObject, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, QEvent, QThread, QObject, pyqtSignal
 #from PyQt5.QtWidgets import  QApplication, QTreeWidget, QTreeWidgetItem
 
 import qlabel2
@@ -19,6 +19,45 @@ import networktables
 from _pyntcore._ntcore import NetworkTableType
 
 #print(f'Initializing GUI ...', flush=True)
+
+
+# Worker class for the video thread
+class CameraWorker(QObject):
+    finished = pyqtSignal()
+    progress = pyqtSignal(int)
+
+    def __init__(self, qtgui):
+        super().__init__()
+        self.qtgui = qtgui
+
+    def stop(self):
+        self.running = False
+
+    def run(self):
+        """Blocking task that may take a long time to run"""
+        self.running = True
+        while self.running:
+            if self.qtgui.qradiobutton_autoswitch.isChecked():  # auto determine which camera to show
+                shooter_on = self.qtgui.widget_dict['qlabel_shooter_indicator']['entry'].getBoolean(False)
+                url = self.qtgui.camera_dict['ShooterCam'] if shooter_on else self.qtgui.camera_dict['BallCam']
+            else:
+                url = self.qtgui.camera_dict[self.qtgui.qcombobox_cameras.currentText()]  # figure out which url we want
+            # stream = urllib.request.urlopen('http://10.24.29.12:1187/stream.mjpg')
+            # get and display image
+            cap = cv2.VideoCapture(url)
+            if not cap.isOpened():
+                print("Cannot open stream")
+                return
+            try:
+                ret, frame = cap.read()
+                pixmap = self.qtgui.convert_cv_qt(frame, self.qtgui.qlabel_camera_view)
+                self.qtgui.qlabel_camera_view.setPixmap(pixmap)
+                #self.qtgui.qlabel_camera_view.repaint()  # do not repaint in the thread.  the main loop takes care of that.
+                # self.progress.emit(1)
+            except Exception as e:
+                print(f'cv error: {e}')
+                # should I stop the thread here? or just let the user fix it by restarting manually?
+        self.finished.emit()
 
 class Ui(QtWidgets.QMainWindow):
     # set the root dir for the project, knowing we're one deep
@@ -43,6 +82,8 @@ class Ui(QtWidgets.QMainWindow):
         self.refresh_time = 50  # milliseconds before refreshing
         self.widget_dict = {}
         self.command_dict = {}
+        self.camera_enabled = False
+        self.thread = None
         self.camera_dict = {'BallCam': 'http://10.24.29.12:1186/stream.mjpg',
                             'ShooterCam': 'http://10.24.29.12:1187/stream.mjpg',
                             'Raw Balls': 'http://10.24.29.12:1181/stream.mjpg',
@@ -71,7 +112,8 @@ class Ui(QtWidgets.QMainWindow):
         # button connections
         self.qt_button_set_key.clicked.connect(self.update_key)
         self.qt_button_test.clicked.connect(self.test)
-        self.qt_button_camera_enable.clicked.connect(self.show_stream)
+        # self.qt_button_camera_enable.clicked.connect(lambda _: setattr(self, 'camera_enabled', not self.camera_enabled))
+        self.qt_button_camera_enable.clicked.connect(self.toggle_camera_thread)
 
         # hide networktables
         self.qt_tree_widget_nt.hide()
@@ -91,8 +133,18 @@ class Ui(QtWidgets.QMainWindow):
         #    print(child)
 
     # ------------------- FUNCTIONS, MISC FOR NOW  --------------------------
-    def update_selected_key(self):
 
+    def check_url(self, url):
+        try:
+            code = urllib.request.urlopen(url, timeout=0.1).getcode()
+            print(f'return code is {code}')
+            if code == 200:
+                return True
+        except Exception as e:
+            print(f'Failed: {e}')
+        return False
+
+    def update_selected_key(self):
         x = self.ntinst.getEntry(self.qcombobox_nt_keys.currentText()).getValue()
         if x is not None:
             self.qt_text_current_value.setPlainText(str(x.value()))
@@ -106,27 +158,61 @@ class Ui(QtWidgets.QMainWindow):
         p = convert_to_Qt_format.scaled(qlabel.width(), qlabel.height(), Qt.KeepAspectRatio)
         return QtGui.QPixmap.fromImage(p)
 
-    def show_stream(self):
-        url = self.camera_dict[self.qcombobox_cameras.currentText()]  # figure out which url we want
-        # stream = urllib.request.urlopen('http://10.24.29.12:1187/stream.mjpg')
-        cap = cv2.VideoCapture(url)
-        if not cap.isOpened():
-            print("Cannot open stream")
-            return
-        ret, frame = cap.read()
-        pixmap = self.convert_cv_qt(frame, self.qlabel_camera_view)
-        self.qlabel_camera_view.setPixmap(pixmap)
-        self.qlabel_camera_view.repaint()
-        '''stream_bytes = bytes()
-            if True:
-            stream_bytes += stream.read(1024)
-            a = stream_bytes.find(b'\xff\xd8')
-            b = stream_bytes.find(b'\xff\xd9')
-            print(f'Test was called: a={a} b={b}', flush=True)
-            if a != -1 and b != -1:
-                jpg = stream_bytes[a:b + 2]
-                stream_bytes = stream_bytes[b + 2:]
-                im = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)'''
+    def toggle_camera_thread(self):
+        # ToDo: check to see if the thread is running, then start again
+
+        # check if server is running
+        if self.check_url(self.camera_dict['BallCam']) or self.check_url('ShooterCam'):
+            if self.thread is None:  # first time through we need to make the thread
+                self.thread = QThread()  # create a QThread object
+                self.worker = CameraWorker(qtgui=self)  # create a CameraWorker object, pass it the main gui
+                self.worker.moveToThread(self.thread)  # move the worker to the thread
+                # connect signals and slots
+                self.thread.started.connect(self.worker.run)
+                self.worker.finished.connect(self.thread.quit)
+                #self.worker.finished.connect(self.worker.deleteLater)
+                #self.thread.finished.connect(self.thread.deleteLater)
+                # self.worker.progress.connect(self.reportProgress)
+                self.thread.start()  # start the thread
+                self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: Starting camera thread')
+            elif self.thread.isRunning():
+                self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: Interrupting existing running camera thread')
+                self.worker.stop()
+
+                # quit or exit?  neither seems to do anything  TODO: add signals so this works correctly
+               # self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: Restarting existing running camera thread')
+                self.thread.quit()
+                self.thread.exit()
+                # ToDo: figure out why we can't restart here but we can on the next iteration
+                #self.thread.start()
+            else:  # thread died for some reason
+                self.thread.start()
+                self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: Restarting existing stopped camera thread')
+
+        else:  # no valid servers
+            if self.thread is not None:
+                self.worker.stop()
+                self.thread.quit()
+                self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: Terminating camera thread: no valid camera servers')
+            else:
+                self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: No valid camera servers, unable to start thread')
+
+        """        if self.camera_enabled:
+            if self.qradiobutton_autoswitch.isChecked():  # auto determine which camera to show
+                shooter_on = self.widget_dict['qlabel_shooter_indicator']['entry'].getBoolean(False)
+                url = self.camera_dict['ShooterCam'] if shooter_on else self.camera_dict['BallCam']
+            else:
+                url = self.camera_dict[self.qcombobox_cameras.currentText()]  # figure out which url we want
+            # stream = urllib.request.urlopen('http://10.24.29.12:1187/stream.mjpg')
+            # get and display image
+            cap = cv2.VideoCapture(url)
+            if not cap.isOpened():
+                print("Cannot open stream")
+                return
+            ret, frame = cap.read()
+            pixmap = self.convert_cv_qt(frame, self.qlabel_camera_view)
+            self.qlabel_camera_view.setPixmap(pixmap)
+            self.qlabel_camera_view.repaint()"""
 
     def test(self):  # test function for checking new signals
         print('Test was called', flush=True)
@@ -298,7 +384,7 @@ class Ui(QtWidgets.QMainWindow):
             x = 205 + center_offset * (380 / 1.2) # 380 px per 1.2 m
             y = 190
 
-            self.qlabel_ball.move(x, y)
+            self.qlabel_ball.move(int(x), int(y))
             if self.qlabel_ball.isHidden():
                 self.qlabel_ball.show()
         else:
@@ -387,7 +473,7 @@ class Ui(QtWidgets.QMainWindow):
 
             self.fill_item(self.qt_tree_widget_nt.invisibleRootItem(), nt_dict)
             self.qt_tree_widget_nt.resizeColumnToContents(0)
-            self.qt_tree_widget_nt.setColumnWidth(1, 60)
+            self.qt_tree_widget_nt.setColumnWidth(1, 100)
         else:
             self.qt_text_status.appendPlainText(f'{datetime.today().strftime("%H:%M:%S")}: Unable to connect to server')
 

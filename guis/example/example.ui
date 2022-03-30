@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1624</width>
-    <height>606</height>
+    <width>1750</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="font">
@@ -28,9 +28,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
-      <width>321</width>
-      <height>481</height>
+      <y>390</y>
+      <width>441</width>
+      <height>161</height>
      </rect>
     </property>
     <property name="font">
@@ -58,9 +58,9 @@
    <widget class="QPlainTextEdit" name="qt_text_status">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>500</y>
-      <width>921</width>
+      <x>460</x>
+      <y>490</y>
+      <width>761</width>
       <height>51</height>
      </rect>
     </property>
@@ -74,7 +74,7 @@
    <widget class="QPushButton" name="qt_button_test">
     <property name="geometry">
      <rect>
-      <x>1170</x>
+      <x>1280</x>
       <y>500</y>
       <width>111</width>
       <height>23</height>
@@ -84,32 +84,10 @@
      <string>test button</string>
     </property>
    </widget>
-   <widget class="QLabel" name="qlabel_camera_view">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>320</width>
-      <height>240</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="pixmap">
-     <pixmap>png/blockhead.ico</pixmap>
-    </property>
-   </widget>
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>460</x>
       <y>30</y>
       <width>771</width>
       <height>451</height>
@@ -844,14 +822,14 @@ background-color:rgb(80, 235, 0);</string>
    <widget class="QTabWidget" name="tabWidget_2">
     <property name="geometry">
      <rect>
-      <x>1110</x>
+      <x>1230</x>
       <y>10</y>
       <width>511</width>
       <height>481</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_3">
      <attribute name="title">
@@ -998,7 +976,7 @@ background-color:rgb(10, 10, 227);</string>
    <widget class="QLabel" name="qlabel_nt_connected">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>470</x>
       <y>0</y>
       <width>131</width>
       <height>20</height>
@@ -1030,7 +1008,7 @@ background-color:rgb(80, 235, 0);</string>
    <widget class="QLabel2" name="qlabel_matchtime">
     <property name="geometry">
      <rect>
-      <x>660</x>
+      <x>780</x>
       <y>0</y>
       <width>111</width>
       <height>41</height>
@@ -1061,49 +1039,104 @@ background-color:rgb(0, 20, 250);</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QComboBox" name="qcombobox_cameras">
+   <widget class="QGroupBox" name="groupBox_6">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>260</y>
-      <width>171</width>
-      <height>22</height>
+      <x>10</x>
+      <y>10</y>
+      <width>441</width>
+      <height>371</height>
      </rect>
     </property>
+    <property name="title">
+     <string/>
+    </property>
+    <widget class="QLabel" name="qlabel_camera_view">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>440</width>
+       <height>330</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>png/blockhead_camera.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>false</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="qradiobutton_autoswitch">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>344</y>
+       <width>101</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Autoswitch</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="qcombobox_cameras">
+     <property name="geometry">
+      <rect>
+       <x>114</x>
+       <y>341</y>
+       <width>171</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="qt_button_camera_enable">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>336</y>
+       <width>121</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>(re) start camera</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QPushButton" name="qt_button_camera_enable">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>258</y>
-      <width>121</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Show Camera</string>
-    </property>
-   </widget>
-   <zorder>qcombobox_cameras</zorder>
-   <zorder>qt_button_camera_enable</zorder>
    <zorder>tabWidget</zorder>
    <zorder>qt_text_status</zorder>
    <zorder>qt_button_test</zorder>
-   <zorder>qlabel_camera_view</zorder>
-   <zorder>qt_tree_widget_nt</zorder>
    <zorder>tabWidget_2</zorder>
    <zorder>qlabel_nt_connected</zorder>
    <zorder>qlabel_matchtime</zorder>
+   <zorder>groupBox_6</zorder>
+   <zorder>qt_tree_widget_nt</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1624</width>
+     <width>1750</width>
      <height>21</height>
     </rect>
    </property>
