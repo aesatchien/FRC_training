@@ -14,7 +14,7 @@ Notebooks and homeworks from a five week set of lessons in Python.  Much of it t
     * TBD
   * week four
     *  TBD   
-* week five 
+  * week five 
      * TBD
 
 Clone the git and install on your own machine:
