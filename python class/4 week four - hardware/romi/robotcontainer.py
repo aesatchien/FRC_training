@@ -6,15 +6,22 @@ import typing
 
 import commands2
 import commands2.button
+from commands2.button import JoystickButton
 import wpilib
-import romi
+from wpilib import SmartDashboard
 
 from commands.arcadedrive import ArcadeDrive
 from commands.autonomous_distance import AutonomousDistance
 from commands.autonomous_time import AutonomousTime
+from commands.turndegrees_ffwd import TurnDegreesFFWD
+from commands.drivetoball import DriveToBall
+from commands.findball import FindBall
 
 from subsystems.drivetrain import Drivetrain
+from subsystems.onboardio import ChannelMode, OnBoardIO
+from subsystems.pixy import Pixy
 
+import time
 
 class RobotContainer:
     """
@@ -26,11 +33,12 @@ class RobotContainer:
 
     def __init__(self) -> None:
 
+        self.start_time = time.time()
+
         # The robot's subsystems and commands are defined here...
         self.drivetrain = Drivetrain()
-        self.onboardIO = romi.OnBoardIO(
-            romi.OnBoardIO.ChannelMode.INPUT, romi.OnBoardIO.ChannelMode.INPUT
-        )
+        self.onboardIO = OnBoardIO(ChannelMode.INPUT, ChannelMode.OUTPUT)  # input is button, output is LED
+        self.pixy = Pixy()
 
         # Assumes a gamepad plugged into channnel 0
         self.controller = wpilib.Joystick(0)
@@ -67,12 +75,46 @@ class RobotContainer:
             commands2.PrintCommand("Button A Pressed")
         ).whenInactive(commands2.PrintCommand("Button A Released"))
 
+
+        # CJH testing - you have to do lambdas on the buttons or it crashes
+        onboardButtonB = commands2.button.Button(self.onboardIO.getButtonBPressed)
+        onboardButtonB.whenActive(
+            lambda:self.onboardIO.setYellowLed(True)
+        ).whenInactive(lambda:self.onboardIO.setYellowLed(False))
+
         # Setup SmartDashboard options
         self.chooser.setDefaultOption(
             "Auto Routine Distance", AutonomousDistance(self.drivetrain)
         )
         self.chooser.addOption("Auto Routine Time", AutonomousTime(self.drivetrain))
         wpilib.SmartDashboard.putData(self.chooser)
+
+
+        # CJH adding diagnostics for turning
+        self.buttonA = JoystickButton(self.controller, 1)
+        self.buttonB = JoystickButton(self.controller, 2)
+        self.buttonX = JoystickButton(self.controller, 3)
+        self.buttonY = JoystickButton(self.controller, 4)
+        self.buttonLB = JoystickButton(self.controller, 5)
+        self.buttonRB = JoystickButton(self.controller, 6)
+
+        # setting up test buttons for each button
+        self.buttonA.whenPressed(TurnDegreesFFWD(speed=0.25, degrees=45, drive=self.drivetrain))
+        self.buttonB.whenPressed(TurnDegreesFFWD(speed=0.5, degrees=90, drive=self.drivetrain))
+        # self.buttonX.whenPressed(TurnDegreesFFWD(speed=0.25, degrees=-45, drive=self.drivetrain))
+        # self.buttonY.whenPressed(TurnDegreesFFWD(speed=0.5, degrees=-180, drive=self.drivetrain))
+
+        # CJH testing LEDs - has to be set to output in onboardo and has to be a lambda here or it crashes
+        self.buttonLB.whenPressed(lambda:self.onboardIO.setRedLed(True))
+        self.buttonLB.whenReleased(lambda:self.onboardIO.setRedLed(False))
+        self.buttonRB.whenPressed(lambda: self.onboardIO.setYellowLed(True)).whenReleased(lambda: self.onboardIO.setYellowLed(False))
+
+        SmartDashboard.putNumber('ball_debug/kp', 0.02)
+        SmartDashboard.putNumber('ball_debug/ki', 0.0)
+        SmartDashboard.putNumber('ball_debug/kd', 0.0)
+        self.buttonX.whileHeld(FindBall(pixy=self.pixy, drive=self.drivetrain, search_speed=0.5))
+        self.buttonY.whileHeld(DriveToBall(pixy=self.pixy, drive=self.drivetrain, drive_speed=0.4))
+
 
     def getAutonomousCommand(self) -> typing.Optional[commands2.CommandBase]:
         return self.chooser.getSelected()
@@ -82,8 +124,14 @@ class RobotContainer:
 
         :returns: the command to run in teleop
         """
+        dampen = 0.5
+
         return ArcadeDrive(
             self.drivetrain,
-            lambda: self.controller.getRawAxis(1),
-            lambda: self.controller.getRawAxis(2),
+            lambda: dampen * -self.controller.getRawAxis(1),
+            lambda: dampen * -self.controller.getRawAxis(4),
+
         )
+
+    def get_enabled_time(self):  # call when we want to know the start/elapsed time for status and debug messages
+        return time.time() - self.start_time

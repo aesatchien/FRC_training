@@ -7,21 +7,29 @@ import math
 import commands2
 import wpilib
 import wpilib.drive
-import romi
+from wpilib import SmartDashboard
+
+from sensors.romigyro import RomiGyro
 
 
 class Drivetrain(commands2.SubsystemBase):
 
     kCountsPerRevolution = 1440.0
     kWheelDiameterInch = 2.75591
+    kWheelDiameterMeter = 2.75591 / 39.4
 
     def __init__(self) -> None:
         super().__init__()
+        self.counter = 0
 
         # The Romi has the left and right motors set to
         # PWM channels 0 and 1 respectively
         self.leftMotor = wpilib.Spark(0)
         self.rightMotor = wpilib.Spark(1)
+
+
+        self.leftMotor.setInverted(True)
+
 
         # The Romi has onboard encoders that are hardcoded
         # to use DIO pins 4/5 and 6/7 for the left and right
@@ -32,7 +40,7 @@ class Drivetrain(commands2.SubsystemBase):
         self.drive = wpilib.drive.DifferentialDrive(self.leftMotor, self.rightMotor)
 
         # Set up the RomiGyro
-        self.gyro = romi.RomiGyro()
+        self.gyro = RomiGyro()
 
         # Set up the BuiltInAccelerometer
         self.accelerometer = wpilib.BuiltInAccelerometer()
@@ -45,6 +53,15 @@ class Drivetrain(commands2.SubsystemBase):
             (math.pi * self.kWheelDiameterInch) / self.kCountsPerRevolution
         )
         self.resetEncoders()
+
+    def periodic(self) -> None:
+        self.counter += 1
+        if self.counter % 10 == 0:
+            rate = round((0.5*self.rightEncoder.getRate() + self.leftEncoder.getRate()),2)
+            distance = self.getAverageDistanceInch()
+            SmartDashboard.putNumber("/romi/velocity", rate)
+            SmartDashboard.putNumber("/romi/distance", rate)
+
 
     def arcadeDrive(self, fwd: float, rot: float) -> None:
         """

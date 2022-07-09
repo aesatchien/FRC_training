@@ -3,7 +3,7 @@
 # the WPILib BSD license file in the root directory of this project.
 
 import commands2
-
+from wpilib import Timer
 from subsystems.drivetrain import Drivetrain
 
 
@@ -28,12 +28,20 @@ class DriveDistance(commands2.CommandBase):
         self.drive.arcadeDrive(0, 0)
         self.drive.resetEncoders()
 
+        # let's have a decent message telling us what we're doing
+        self.start_time = Timer.getFPGATimestamp()
+        print("\n" + f"** Started {self.__class__.__name__} driving {self.distance} at {self.start_time:.1f} s **", flush=True)
+
     def execute(self) -> None:
         """Called every time the scheduler runs while the command is scheduled."""
         self.drive.arcadeDrive(self.speed, 0)
 
     def end(self, interrupted: bool) -> None:
         """Called once the command ends or is interrupted."""
+        end_time = Timer.getFPGATimestamp()
+        message = 'Interrupted' if interrupted else 'Ended'
+        print(f"** {message} {self.__class__.__name__} - drove {self.drive.getAverageDistanceInch():.1f} after {end_time - self.start_time:.1f} s **", flush=True)
+
         self.drive.arcadeDrive(0, 0)
 
     def isFinished(self) -> bool:
