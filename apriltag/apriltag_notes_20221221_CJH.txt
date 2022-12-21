@@ -1,0 +1,24 @@
+Bullet point summary of the papers linked by WPI:
+Olson 2011 - AprilTag: 
+* The design of the target is important for ease of recognition and reduction of errors.
+* Their target design, designated by bits n and Hamming distance d (eg. a 6x6 grid with a Hamming distance 11 is called 36h11 ) is superior to other approaches because:
+1) They pre-select the allowable images to reduce false positives using lexicodes, and speed up verification
+2) These lexicodes are able to detect and correct error bits ~ d/2
+* Their detection algorithm is optimized to (deep dive there)
+* They can return the 6-degrees of freedom (x,y,x, pitch, roll, yaw) from the image if the camera is calibrated 
+
+Wang and Olsen, 2016 - AprilTag 2:
+The target design is the same as before.
+They improved the detector algorithm based on user feedback.
+They got rid of the ability to detect partially occluded targets, 
+and improved the detection cabability in terms of distance and decimating (downsampling) the images.
+The distance measurements also got more accurate, especially at greater detection distances due to an edge refinement step.  This was overall about 30% faster than previous version, but when you decimate the image the speed up is more like a factor of 4 or 5.  
+
+Krogius, Haggenmiller and Olson, 2019 - AprilTag 3:
+Made a more physically flexible target system, but still can use the older AprilTags targets.  New targets, however, can have physically larger bits (= having fewer cells) but still have more allowable tags and better Hamming dist.
+Significant speed up in FPS by improving the detector code. The steps / improvements are:
+1) Image decimation, so the later steps are faster.  Changed from box sampling to point sampling (better edges).  
+2) Union-find - track values to avoid redundant calls, and reject connections too small to be tags
+3) Fitting quadrilaterals - got around expensive trig (atan, sin, cos) calls w/o sacrificing accuracy  
+4) Tag decoding - scaled down the matrix they had to solve a little
+They also add a sharpening step for small tags (thereby improving distance).
