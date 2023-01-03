@@ -9,6 +9,7 @@
 /robot/guis
 /robot/sim/data/*.pkl
 /robot/imgui.ini
+/apriltag/cal_images
 
 #pycharm directory
 .idea/
