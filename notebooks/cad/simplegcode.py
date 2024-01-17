@@ -58,13 +58,12 @@ def generate_gcode(point_list, machine='shapeoko', overrides=None, peck=False, s
     # set the intro and outro G code
     intro_code, outro_code = None, None
 
-    action = 'circles' if settings_dict[machine]['MILL_CIRCLES'] else 'center_drill'
-
     if overrides is not None:
         # allow user to pass in a dictionary to update the machine settings
         settings_dict[machine].update(overrides)
         print(f'Using the following settings: {settings_dict[machine]}\n')
 
+    action = 'circles' if settings_dict[machine]['MILL_CIRCLES'] else 'center_drill'
     sorted_list = sort_list(point_list)
 
     if machine == 'shapeoko':
@@ -211,7 +210,7 @@ def generate_l_square(width, height, machine='shapeoko', overrides=None, save_fi
     return command
 
 
-def plot_points(point_list, annotate=True, show_order=True, sort=True, connect=False):
+def plot_points(point_list, annotate=True, show_order=True, sort=True, connect=False, interactive=True):
     # plot with labels and correct aspect ratio
     sorted_list = sort_list(point_list) if sort else point_list
     #x_sort = sorted(point_list)  # sort on x values
@@ -247,3 +246,7 @@ def plot_points(point_list, annotate=True, show_order=True, sort=True, connect=F
     ax.set_xlim([min(0, np.min(x)), 0.5+ np.max(x)])
     ax.set_ylim([min(0, -0.5 +np.min(y)), max(0, 0.5+ np.max(y))])
     ax.grid(True)
+
+    if not interactive:  # running from script, not jupyter
+        plt.title("point grid")
+        plt.show()
