@@ -78,27 +78,21 @@ def generate_gcode(point_list, machine='shapeoko', overrides=None, peck=False, s
             message = message + f'G01 Z{settings_dict[machine]["ENGAGE_HEIGHT"]} F{settings_dict[machine]["RETRACT_FEED"]}\n'
             message = message + f'Z{settings_dict[machine]["DRILL_DEPTH"]} F{settings_dict[machine]["DRILL_FEED"]}\n'
             if settings_dict[machine]['MILL_CIRCLES']:
-                relative = True  # GRBL / default forces I and J to be relative?  Seems to be the only way to get all systems to plot it correctly (GRBL is dumb)
                 radius = settings_dict[machine]["HOLE_DIAMETER"] / 2; cut_feed = settings_dict[machine]["CUT_FEED"]
                 use_radius = False; rad_str = f'R{radius}' if use_radius else ''
                 message = message + f'G01 X{point[0]} Y{point[1] + radius:.4f} F{settings_dict[machine]["CUT_FEED"]} ; TOP OF CIRCLE\n'
-                if relative:  # I guess GRBL wants all centers relative?  Also, R is suposed to override I and J, but not sure - this makes it work on both mill and router but not UGS
-                        # four points on the circle because some interpreters are dumb / some half circles are ambiguous,
-                        # GRBL seems to need this explicit, mill may use R and ignore the relative IJ - so it still works on mill simulator
-                    message += f'G91\n'  #
-                    for _ in range(settings_dict[machine]["SWEEPS"]):
-                        full_circle = True
-                        if full_circle:
-                            message += f'G03 X{0} Y{0} I{0} J{-radius:.4f} {rad_str} F{cut_feed} ; ARC CCW CIRCLE\n'
-                        else:  # broken at the moment
-                            message += f'G03 X{point[0] - radius } Y{point[1]:.4f} I{radius} J{0:.4f} {rad_str} F{cut_feed} ; ARC CCW LEFT OF CIRCLE\n'
-                            message += f'G03 X{point[0]} Y{point[1] - radius :.4f} I{0} J{-radius:.4f} {rad_str} F{cut_feed} ; ARC CCW BOTTOM OF CIRCLE\n'
-                            message += f'G03 X{point[0] + radius} Y{point[1]:.4f} I{-radius} J{0:.4f} {rad_str} F{cut_feed} ; ARC CCW RIGHT OF CIRCLE\n'
-                            message += f'G03 X{point[0]} Y{point[1] + radius:.4f} I{0} J{radius:.4f} {rad_str} F{cut_feed} ; ARC CCW TOP OF CIRCLE\n'
-                    message += f'G90\n'
-                else:  # mill is fine with absolute, and an entire circle at a time
-                    message += f'G03 X{point[0]} Y{point[1] - radius:.4f} I{point[0]} J{point[1]} F{cut_feed} ; ARC CCW BOTTOM OF CIRCLE\n'
-                    message += f'G03 X{point[0]} Y{point[1] + radius:.4f} I{point[0]} J{point[1]} F{cut_feed} ; ARC CCW TOP OF CIRCLE\n'
+                for _ in range(settings_dict[machine]["SWEEPS"]):
+                    full_circle = True  # this works on carbide 3D
+                    if full_circle:
+                        # message += f'G03 X{0} Y{0} I{0} J{-radius:.4f} {rad_str} F{cut_feed} ; ARC CCW CIRCLE\n'  # HAVE TO USE RELATIVE ON UGS
+                        message += f'G03 X{point[0]:.4f} Y{point[1]+radius:.4f} I{0} J{-radius:.4f} F{cut_feed} ; ARC CCW CIRCLE\n'  # THIS WORKS ON SHAPEOKO AND https://ncviewer.com/
+
+                    else:  # broken at the moment
+                        message += f'G91 G03 X{-radius} Y{-radius} I{0} J{-radius:.4f} {rad_str} F{cut_feed} ; ARC CCW LEFT OF CIRCLE\n'
+                        message += f'G91 G03 X{radius} Y{-radius} I{radius} J{0} {rad_str} F{cut_feed} ; ARC CCW BOTTOM OF CIRCLE\n'
+                        message += f'G91 G03 X{radius} Y{radius} I{0} J{radius:.4f} {rad_str} F{cut_feed} ; ARC CCW RIGHT OF CIRCLE\n'
+                        message += f'G91 G03 X{-radius} Y{radius} I{-radius} J{0} {rad_str} F{cut_feed} ; ARC CCW TOP OF CIRCLE\n'
+                # message += f'G90\n'
                 # return to center regardless of method of cutting circles
                 message = message + f'G01 X{point[0]} Y{point[1]} F{settings_dict[machine]["DRILL_FEED"]} ; RETURN TO CENTER\n'
             # retract at end
