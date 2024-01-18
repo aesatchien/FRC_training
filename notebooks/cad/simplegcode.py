@@ -19,10 +19,10 @@ from datetime import datetime
 settings_dict = {
     'shapeoko':{'DRILL_DEPTH':-0.12, 'RETRACT_HEIGHT':0.5, 'ENGAGE_HEIGHT':0.1,
                 'LINEAR_FEED':100, 'DRILL_FEED':5, 'RETRACT_FEED':30, 'MILL_STEP':0.04, 'PART_DEPTH':0.40,
-                'TOOL_DIAMETER':0.25, 'CUT_FEED':20, 'MILL_CIRCLES':False, 'HOLE_DIAMETER': 0.201-0.125} ,
+                'TOOL_DIAMETER':0.25, 'CUT_FEED':20, 'MILL_CIRCLES':False, 'HOLE_DIAMETER': 0.201-0.125, 'SWEEPS':2} ,
     'benchmill':{'DRILL_DEPTH':-0.2, 'RETRACT_HEIGHT':0.5, 'ENGAGE_HEIGHT':0.1,
                 'LINEAR_FEED':30, 'DRILL_FEED':3, 'RETRACT_FEED':20, 'TOOL':4, 'PECK_TOOL':5,
-                'PECK_STEP':0.05, 'MILL_CIRCLES':False, 'HOLE_DIAMETER': 0.201-0.125},
+                'PECK_STEP':0.05, 'MILL_CIRCLES':False, 'HOLE_DIAMETER': 0.201-0.125, 'SWEEPS':2},
 }
 
 
@@ -31,7 +31,6 @@ def tool_travel(point_list):
     for ix, point in enumerate(point_list[:-1]):  # must be a one liner for this in numpy or scipy
         travel += ((point[0]-point_list[ix+1][0])**2 + (point[1]-point_list[ix+1][1])**2)**0.5
     return travel
-
 
 def distance(point_1, point_2):
     return ((point_1[0]-point_2[0])**2 + (point_1[1]-point_2[1])**2)**0.5
@@ -79,20 +78,30 @@ def generate_gcode(point_list, machine='shapeoko', overrides=None, peck=False, s
             message = message + f'G01 Z{settings_dict[machine]["ENGAGE_HEIGHT"]} F{settings_dict[machine]["RETRACT_FEED"]}\n'
             message = message + f'Z{settings_dict[machine]["DRILL_DEPTH"]} F{settings_dict[machine]["DRILL_FEED"]}\n'
             if settings_dict[machine]['MILL_CIRCLES']:
-                message = message + f'G01 X{point[0]} Y{point[1] + settings_dict[machine]["HOLE_DIAMETER"] / 2:.4f} F{settings_dict[machine]["CUT_FEED"]} ; TOP OF CIRCLE\n'
-                relative = True  # GRBL / default forces I and J to be relative?
-                radius = settings_dict[machine]["HOLE_DIAMETER"] / 2
-                for _ in range(2):
-                    if relative:  # I guess GRBL wants these things relative?  Also, R is suposed to override I and J, but not sure - this makes it work on both mill and router
+                relative = True  # GRBL / default forces I and J to be relative?  Seems to be the only way to get all systems to plot it correctly (GRBL is dumb)
+                radius = settings_dict[machine]["HOLE_DIAMETER"] / 2; cut_feed = settings_dict[machine]["CUT_FEED"]
+                use_radius = False; rad_str = f'R{radius}' if use_radius else ''
+                message = message + f'G01 X{point[0]} Y{point[1] + radius:.4f} F{settings_dict[machine]["CUT_FEED"]} ; TOP OF CIRCLE\n'
+                if relative:  # I guess GRBL wants all centers relative?  Also, R is suposed to override I and J, but not sure - this makes it work on both mill and router but not UGS
                         # four points on the circle because some interpreters are dumb / some half circles are ambiguous,
-                        message = message + f'G03 X{point[0] - radius } Y{point[1]:.4f} I{radius} J{0:.4f} R{radius} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW LEFT OF CIRCLE\n'
-                        message = message + f'G03 X{point[0]} Y{point[1] - radius :.4f} I{0} J{-radius:.4f} R{radius} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW BOTTOM OF CIRCLE\n'
-                        message = message + f'G03 X{point[0] + radius} Y{point[1]:.4f} I{-radius} J{0:.4f} R{radius} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW RIGHT OF CIRCLE\n'
-                        message = message + f'G03 X{point[0]} Y{point[1] + radius:.4f} I{0} J{radius:.4f} R{radius} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW TOP OF CIRCLE\n'
-                    else:  # mill is fine with absolute
-                        message = message + f'G03 X{point[0]} Y{point[1] - settings_dict[machine]["HOLE_DIAMETER"] / 2:.4f} I{point[0]} J{point[1]} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW BOTTOM OF CIRCLE\n'
-                        message = message + f'G03 X{point[0]} Y{point[1] + settings_dict[machine]["HOLE_DIAMETER"]/2:.4f} I{point[0]} J{point[1]} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW TOP OF CIRCLE\n'
+                        # GRBL seems to need this explicit, mill may use R and ignore the relative IJ - so it still works on mill simulator
+                    message += f'G91\n'  #
+                    for _ in range(settings_dict[machine]["SWEEPS"]):
+                        full_circle = True
+                        if full_circle:
+                            message += f'G03 X{0} Y{0} I{0} J{-radius:.4f} {rad_str} F{cut_feed} ; ARC CCW CIRCLE\n'
+                        else:  # broken at the moment
+                            message += f'G03 X{point[0] - radius } Y{point[1]:.4f} I{radius} J{0:.4f} {rad_str} F{cut_feed} ; ARC CCW LEFT OF CIRCLE\n'
+                            message += f'G03 X{point[0]} Y{point[1] - radius :.4f} I{0} J{-radius:.4f} {rad_str} F{cut_feed} ; ARC CCW BOTTOM OF CIRCLE\n'
+                            message += f'G03 X{point[0] + radius} Y{point[1]:.4f} I{-radius} J{0:.4f} {rad_str} F{cut_feed} ; ARC CCW RIGHT OF CIRCLE\n'
+                            message += f'G03 X{point[0]} Y{point[1] + radius:.4f} I{0} J{radius:.4f} {rad_str} F{cut_feed} ; ARC CCW TOP OF CIRCLE\n'
+                    message += f'G90\n'
+                else:  # mill is fine with absolute, and an entire circle at a time
+                    message += f'G03 X{point[0]} Y{point[1] - radius:.4f} I{point[0]} J{point[1]} F{cut_feed} ; ARC CCW BOTTOM OF CIRCLE\n'
+                    message += f'G03 X{point[0]} Y{point[1] + radius:.4f} I{point[0]} J{point[1]} F{cut_feed} ; ARC CCW TOP OF CIRCLE\n'
+                # return to center regardless of method of cutting circles
                 message = message + f'G01 X{point[0]} Y{point[1]} F{settings_dict[machine]["DRILL_FEED"]} ; RETURN TO CENTER\n'
+            # retract at end
             message = message + f"Z{settings_dict[machine]['RETRACT_HEIGHT']} F{settings_dict[machine]['RETRACT_FEED']}\n"
         command = message + outro_code
 

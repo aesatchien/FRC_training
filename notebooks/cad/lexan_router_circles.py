@@ -12,11 +12,12 @@ x_start, x_spacing = 0.5, 1.0  # negatives are fine
 y_start, y_spacing = 0.5, 1
 x_repeats = 3  # minimum 1
 y_repeats = 3  # minimum 1
-mill_circles = False  # false if you only want to drill
-depth = -0.26  # final depth of cut
+mill_circles = True  # false if you only want to drill
+depth = -0.26  # depth in Z for the operation (single step in this version)
 hole_diameter = (0.200-0.125)  # if you want to mill out a circle
 machine = 'shapeoko'  # shapeoko or benchmill
-display_plot = True
+display_plot = True  # show a plot of the points
+time_stamp = False  # timestamp the file name
 
 # -----------------------  do not modify beLow this line   -----------------------
 if perimeter_only:  # will be hollow once
@@ -33,9 +34,9 @@ else:
 
 # -----------------------  WRITE THE FILE   -----------------------
 overrides = {'DRILL_FEED':2,'DRILL_DEPTH':depth, 'RETRACT_HEIGHT': 0.5, 'ENGAGE_HEIGHT': 0.05,
-            'MILL_CIRCLES':mill_circles, 'HOLE_DIAMETER':hole_diameter} # dictionary of what to change from default
+            'MILL_CIRCLES':mill_circles, 'HOLE_DIAMETER':hole_diameter,} # dictionary of what to change from default
 code = sg.generate_gcode(point_list, machine=machine, peck=False, overrides=overrides,
-                         save_file=True, file_description=output_file_description, time_stamp=False)
+                         save_file=True, file_description=output_file_description, time_stamp=time_stamp)
 
 print(f'Probably generated a file looking like {output_file_description}_shapeoko_circles.nc ...')
 
