@@ -79,11 +79,20 @@ def generate_gcode(point_list, machine='shapeoko', overrides=None, peck=False, s
             message = message + f'G01 Z{settings_dict[machine]["ENGAGE_HEIGHT"]} F{settings_dict[machine]["RETRACT_FEED"]}\n'
             message = message + f'Z{settings_dict[machine]["DRILL_DEPTH"]} F{settings_dict[machine]["DRILL_FEED"]}\n'
             if settings_dict[machine]['MILL_CIRCLES']:
+                message = message + f'G01 X{point[0]} Y{point[1] + settings_dict[machine]["HOLE_DIAMETER"] / 2:.4f} F{settings_dict[machine]["CUT_FEED"]} ; TOP OF CIRCLE\n'
+                relative = True  # GRBL / default forces I and J to be relative?
+                radius = settings_dict[machine]["HOLE_DIAMETER"] / 2
                 for _ in range(2):
-                    message = message + f'G01 Y{point[1] + settings_dict[machine]["HOLE_DIAMETER"]/2:.5f} F{settings_dict[machine]["DRILL_FEED"]} ; TOP OF CIRCLE\n'
-                    message = message + f'G03 Y{point[1] - settings_dict[machine]["HOLE_DIAMETER"]/2:.5f} I{point[0]} J{point[1]} F{settings_dict[machine]["DRILL_FEED"]} ; ARC CCW BOTTOM OF CIRCLE\n'
-                    message = message + f'G03 Y{point[1] + settings_dict[machine]["HOLE_DIAMETER"]/2:.5f} F{settings_dict[machine]["DRILL_FEED"]} ; ARC CCW TOP OF CIRCLE\n'
-                message = message + f'G01 X{point[0]} Y{point[1]} F{settings_dict[machine]["LINEAR_FEED"]} ; RETURN TO CENTER\n'
+                    if relative:  # I guess GRBL wants these things relative?  Also, R is suposed to override I and J, but not sure - this makes it work on both mill and router
+                        # four points on the circle because some interpreters are dumb / some half circles are ambiguous,
+                        message = message + f'G03 X{point[0] - radius } Y{point[1]:.4f} I{radius} J{0:.4f} R{radius} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW LEFT OF CIRCLE\n'
+                        message = message + f'G03 X{point[0]} Y{point[1] - radius :.4f} I{0} J{-radius:.4f} R{radius} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW BOTTOM OF CIRCLE\n'
+                        message = message + f'G03 X{point[0] + radius} Y{point[1]:.4f} I{-radius} J{0:.4f} R{radius} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW RIGHT OF CIRCLE\n'
+                        message = message + f'G03 X{point[0]} Y{point[1] + radius:.4f} I{0} J{radius:.4f} R{radius} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW TOP OF CIRCLE\n'
+                    else:  # mill is fine with absolute
+                        message = message + f'G03 X{point[0]} Y{point[1] - settings_dict[machine]["HOLE_DIAMETER"] / 2:.4f} I{point[0]} J{point[1]} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW BOTTOM OF CIRCLE\n'
+                        message = message + f'G03 X{point[0]} Y{point[1] + settings_dict[machine]["HOLE_DIAMETER"]/2:.4f} I{point[0]} J{point[1]} F{settings_dict[machine]["CUT_FEED"]} ; ARC CCW TOP OF CIRCLE\n'
+                message = message + f'G01 X{point[0]} Y{point[1]} F{settings_dict[machine]["DRILL_FEED"]} ; RETURN TO CENTER\n'
             message = message + f"Z{settings_dict[machine]['RETRACT_HEIGHT']} F{settings_dict[machine]['RETRACT_FEED']}\n"
         command = message + outro_code
 
