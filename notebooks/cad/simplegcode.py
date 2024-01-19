@@ -6,6 +6,11 @@ User generates  a pointlist [ [], [], ... ] however they want and calls
 generate_gcode() to get the gcode and
 plot_points() to get a plot of the points
 
+The key to arcs is that shapeoko wants I,J in relative coordinates even when in G90
+So it mixes G90 points with G91 arc centers
+Whereas the mill needs them to be consistent with what is called within the line.
+It has a "Fanuc mode" in which the arc centers are incremental, and you just do a % alone on a line
+
 """
 
 import numpy as np
@@ -14,14 +19,13 @@ from datetime import datetime
 
 # options - defaults, can be overridden by user
 
-
 # machine parameters
 settings_dict = {
     'shapeoko':{'DRILL_DEPTH':-0.12, 'RETRACT_HEIGHT':0.5, 'ENGAGE_HEIGHT':0.1,
                 'LINEAR_FEED':100, 'DRILL_FEED':5, 'RETRACT_FEED':30, 'MILL_STEP':0.04, 'PART_DEPTH':0.40,
-                'TOOL_DIAMETER':0.25, 'CUT_FEED':20, 'MILL_CIRCLES':False, 'HOLE_DIAMETER': 0.201-0.125, 'SWEEPS':2} ,
+                'TOOL_DIAMETER':0.125, 'CUT_FEED':10, 'MILL_CIRCLES':False, 'HOLE_DIAMETER': 0.201-0.125, 'SWEEPS':2} ,
     'benchmill':{'DRILL_DEPTH':-0.2, 'RETRACT_HEIGHT':0.5, 'ENGAGE_HEIGHT':0.1,
-                'LINEAR_FEED':30, 'DRILL_FEED':3, 'RETRACT_FEED':20, 'TOOL':4, 'PECK_TOOL':5,
+                'LINEAR_FEED':30, 'DRILL_FEED':3, 'RETRACT_FEED':20, 'TOOL':4, 'PECK_TOOL':5, 'CUT_FEED':5,
                 'PECK_STEP':0.05, 'MILL_CIRCLES':False, 'HOLE_DIAMETER': 0.201-0.125, 'SWEEPS':2},
 }
 
@@ -78,20 +82,21 @@ def generate_gcode(point_list, machine='shapeoko', overrides=None, peck=False, s
             message = message + f'G01 Z{settings_dict[machine]["ENGAGE_HEIGHT"]} F{settings_dict[machine]["RETRACT_FEED"]}\n'
             message = message + f'Z{settings_dict[machine]["DRILL_DEPTH"]} F{settings_dict[machine]["DRILL_FEED"]}\n'
             if settings_dict[machine]['MILL_CIRCLES']:
-                radius = settings_dict[machine]["HOLE_DIAMETER"] / 2; cut_feed = settings_dict[machine]["CUT_FEED"]
-                use_radius = False; rad_str = f'R{radius}' if use_radius else ''
+                radius = settings_dict[machine]["HOLE_DIAMETER"] / 2;
+                cut_feed = settings_dict[machine]["CUT_FEED"]
+                use_radius = False; rad_str = f'R{radius}' if use_radius else ''  # does not seem to help
                 message = message + f'G01 X{point[0]} Y{point[1] + radius:.4f} F{settings_dict[machine]["CUT_FEED"]} ; TOP OF CIRCLE\n'
                 for _ in range(settings_dict[machine]["SWEEPS"]):
-                    full_circle = True  # this works on carbide 3D
+                    full_circle = True  # this works on carbide 3D now, but not on UGS' default plotting or the milL UNLESS YOU USE FANUC MODE= %)
                     if full_circle:
-                        # message += f'G03 X{0} Y{0} I{0} J{-radius:.4f} {rad_str} F{cut_feed} ; ARC CCW CIRCLE\n'  # HAVE TO USE RELATIVE ON UGS
+                        # message += f'G03 X{0} Y{0} I{0} J{-radius:.4f} {rad_str} F{cut_feed} ; ARC CCW CIRCLE\n'  # HAVE TO USE RELATIVE ON UGS?
                         message += f'G03 X{point[0]:.4f} Y{point[1]+radius:.4f} I{0} J{-radius:.4f} F{cut_feed} ; ARC CCW CIRCLE\n'  # THIS WORKS ON SHAPEOKO AND https://ncviewer.com/
-
                     else:  # broken at the moment
-                        message += f'G91 G03 X{-radius} Y{-radius} I{0} J{-radius:.4f} {rad_str} F{cut_feed} ; ARC CCW LEFT OF CIRCLE\n'
-                        message += f'G91 G03 X{radius} Y{-radius} I{radius} J{0} {rad_str} F{cut_feed} ; ARC CCW BOTTOM OF CIRCLE\n'
-                        message += f'G91 G03 X{radius} Y{radius} I{0} J{radius:.4f} {rad_str} F{cut_feed} ; ARC CCW RIGHT OF CIRCLE\n'
-                        message += f'G91 G03 X{-radius} Y{radius} I{-radius} J{0} {rad_str} F{cut_feed} ; ARC CCW TOP OF CIRCLE\n'
+                        pass
+                        # message += f'G91 G03 X{-radius} Y{-radius} I{0} J{-radius:.4f} {rad_str} F{cut_feed} ; ARC CCW LEFT OF CIRCLE\n'
+                        # message += f'G91 G03 X{radius} Y{-radius} I{radius} J{0} {rad_str} F{cut_feed} ; ARC CCW BOTTOM OF CIRCLE\n'
+                        # message += f'G91 G03 X{radius} Y{radius} I{0} J{radius:.4f} {rad_str} F{cut_feed} ; ARC CCW RIGHT OF CIRCLE\n'
+                        # message += f'G91 G03 X{-radius} Y{radius} I{-radius} J{0} {rad_str} F{cut_feed} ; ARC CCW TOP OF CIRCLE\n'
                 # message += f'G90\n'
                 # return to center regardless of method of cutting circles
                 message = message + f'G01 X{point[0]} Y{point[1]} F{settings_dict[machine]["DRILL_FEED"]} ; RETURN TO CENTER\n'
