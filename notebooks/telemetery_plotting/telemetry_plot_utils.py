@@ -120,7 +120,8 @@ def fix_data(telemetry, x_offset=0, y_offset=0):
 
 
 # ----------------- PLOT UTILS -----------------
-def plot_df(df, telemetry, arrows=True, guess_points=True, point_df=None, pathweaver=False, background='slalom', save=False, fname='odometry.png'):
+def plot_df(df, telemetry, arrows=True, guess_points=True, point_df=None, pathweaver=False, background='slalom', 
+            ignore_field_size=False, save=False, fname='odometry.png'):
 
     # generate a title
     label = f"Mapping odometry from {telemetry['COURSE']}: {telemetry['TIMESTAMP']} " \
@@ -147,7 +148,7 @@ def plot_df(df, telemetry, arrows=True, guess_points=True, point_df=None, pathwe
     ax.imshow(img, extent=[0-field_offset_left, field_size[0] + field_offset_right, 0-field_offset_top, field_size[1]+field_offset_bottom])
 
     # robot scatterplot and annotation
-    scat = ax.scatter(x=df['RBT_X'], y=df['RBT_Y'], c=df['RBT_TH'], s=20, label='robot')
+    scat = ax.scatter(x=df['RBT_X'], y=df['RBT_Y'], c=df['RBT_TH'],  vmin=-3.14, vmax=3.14, s=20, label='robot')
 
     if arrows:
         x = np.array(df['RBT_X'])
@@ -158,7 +159,7 @@ def plot_df(df, telemetry, arrows=True, guess_points=True, point_df=None, pathwe
     ax.text(df.iloc[[-1]]['RBT_X'], df.iloc[[-1]]['RBT_Y'] + .2, 'FINISH', ha='center', size=font_size)
 
     # trajectory data
-    traj = ax.scatter(x=df['TRAJ_X'], y=df['TRAJ_Y'], c=df['TRAJ_TH'], marker='x', label='trajectory', alpha=.75)
+    traj = ax.scatter(x=df['TRAJ_X'], y=df['TRAJ_Y'], c=df['TRAJ_TH'], vmin=-3.14, vmax=3.14, marker='x', label='trajectory', alpha=.75)
 
     # trajectory generation data
     if guess_points:
@@ -168,16 +169,18 @@ def plot_df(df, telemetry, arrows=True, guess_points=True, point_df=None, pathwe
     if point_df is not None:
         labels = [str(i) for i in range(len(point_df))]
         x, y = np.asarray(point_df['X']), np.asarray(point_df['Y'])
-        y = y + field_size[1]
+        y = y + field_size[1] if not ignore_field_size else y
         for i, txt in enumerate(labels):
-            ax.annotate(txt, (x[i] - .1, y[i] - .3), size=font_size)
+            ax.annotate(txt, (x[i] - .1, y[i] - .3), c='w', size=font_size)
         #ax.scatter(x, y, marker='o', c='g', s=120, linewidths=2, label='path point')
-        ax.scatter(x, y, facecolors='none', edgecolors='g', s=120, linewidths=2, label='path point')
+        ax.scatter(x, y, facecolors='none', edgecolors='y', s=120, linewidths=2, label='path point')
 
     # make a color bar to help visualize direction
+    # Set the minimum and maximum values of the colormap
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="3%", pad=0.05)
-    cb = plt.colorbar(scat, cax=cax)
+    norm = plt.Normalize(-3.15, 3.15)
+    cb = plt.colorbar(scat, norm=norm, cax=cax,)
     cb.set_label('robot theta', rotation=270)
 
     # legends and labels
